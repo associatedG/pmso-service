@@ -1,6 +1,6 @@
 # pmso-service
 
-The backend service of PMS
+The backend service of PMSs
 
 ## How to run the project
 
