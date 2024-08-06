@@ -28,4 +28,5 @@ jobs:
 
       - name: Run tests
         run: |
+          cd pmsoService
           python manage.py test
