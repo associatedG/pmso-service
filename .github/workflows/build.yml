@@ -11,7 +11,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    permissions:
+      # Gives the action the necessary permissions for publishing new
+      # comments in pull requests.
+      pull-requests: write
+      # Gives the action the necessary permissions for pushing data to the
+      # python-coverage-comment-action branch, and for editing existing
+      # comments (to avoid publishing multiple comments in the same PR)
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -29,4 +36,10 @@ jobs:
       - name: Run tests
         run: |
           cd pmsoService
-          python manage.py test
+          coverage run --omit=*/migrations/* manage.py test
+
+      - name: Coverage comment
+        id: coverage_comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
