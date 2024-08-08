@@ -19,15 +19,27 @@ class ProductOrder(models.Model):
     }
 
     id = models.AutoField(primary_key=True)
-    isUrgent = models.BooleanField(choices=PRIORITY_CHOICES, default=NOT_URGENT)
+    isUrgent = models.BooleanField(
+        choices=PRIORITY_CHOICES,
+        default=NOT_URGENT
+    )
     dueDate = models.DateField()
     status = models.CharField(max_length=50)
-    products = models.ManyToManyField(Product, through='ProductOrderProduct')
+    products = models.ManyToManyField(
+        Product,
+        through='ProductOrderProduct'
+    )
     createdAt = models.DateTimeField(auto_now_add=True)
 
 
 class ProductOrderProduct(models.Model):
-    product_orders = models.ForeignKey(ProductOrder, on_delete=models.CASCADE)
-    products = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product_orders = models.ForeignKey(
+        ProductOrder,
+        on_delete=models.CASCADE
+    )
+    products = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE
+    )
     quantity = models.PositiveIntegerField()
 
