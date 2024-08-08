@@ -11,7 +11,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    permissions:
+        # Gives the action the necessary permissions for publishing new
+        # comments in pull requests.
+        pull-requests: write
+        # Gives the action the necessary permissions for pushing data to the
+        # python-coverage-comment-action branch, and for editing existing
+        # comments (to avoid publishing multiple comments in the same PR)
+        contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,31 +32,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install coverage pytest-cov
 
       - name: Run tests
         run: |
           cd pmsoService
           python manage.py test
-              
-  code-coverage:
-      name: Run tests & display coverage
-      runs-on: ubuntu-latest
-      permissions:
-        # Gives the action the necessary permissions for publishing new
-        # comments in pull requests.
-        pull-requests: write
-        # Gives the action the necessary permissions for pushing data to the
-        # python-coverage-comment-action branch, and for editing existing
-        # comments (to avoid publishing multiple comments in the same PR)
-        contents: write
-      steps:
-        - uses: actions/checkout@v4
+          pytest --cov=items
   
-        - name: Install everything, run the tests, produce the .coverage file
-          run: make test # This is the part where you put your own test command
-  
-        - name: Coverage comment
-          uses: py-cov-action/python-coverage-comment-action@v3
-          with:
-            GITHUB_TOKEN: ${{ github.token }}
+      - name: Coverage comment
+        uses: py-cov-action/python-coverage-comment-action@v3
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
             
