@@ -30,3 +30,7 @@ jobs:
         run: |
           cd pmsoService
           python manage.py test
+              
+      - name: Python Coverage
+        uses: orgoro/coverage@v3.2
+            
