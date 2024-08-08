@@ -23,5 +23,4 @@ class ProductOrder(models.Model):
     dueDate = models.DateField()
     status = models.CharField(max_length=50)
     createdAt = models.DateTimeField(auto_now_add=True)
-    saleStaffId = models.ForeignKey('auth.User', on_delete=models.CASCADE)
 
