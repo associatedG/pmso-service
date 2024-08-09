@@ -1,2 +1,2 @@
-[coverage:run]
+[tool.coverage.run]
 relative_files = true
