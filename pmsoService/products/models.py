@@ -14,7 +14,11 @@ class Product(models.Model):
         (CATEGORY_TYPE_THREE, "Cơ Khí Ô Tô"),
     ]
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
     category = models.CharField(
         max_length=255,
@@ -22,9 +26,6 @@ class Product(models.Model):
     )
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
-    sale_staff_id = models.ForeignKey(
-        "account.User", on_delete=models.SET_NULL, null=True, related_name="sale_orders"
-    )
 
     def __str__(self):
         return self.name
@@ -52,6 +53,12 @@ class ProductOrder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True, null=True)
     # Set on_delete to RESTRICT to prevent any User and ProductOrder deletion
+    sale_staff_id = models.ForeignKey(
+        "account.User",
+        on_delete=models.RESTRICT,
+        null=True,
+        related_name="sale_orders",
+    )
     logistic_staff_id = models.ForeignKey(
         "account.User",
         on_delete=models.RESTRICT,
