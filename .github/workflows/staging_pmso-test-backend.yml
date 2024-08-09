@@ -24,13 +24,14 @@ jobs:
 
       - name: Create and start virtual environment
         run: |
+          cd pmsoService
           python -m venv venv
           source venv/bin/activate
       
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r ./pmsoService/requirements.txt
 
       - name: Collect static files
         run: |
@@ -41,6 +42,7 @@ jobs:
 
       - name: Zip artifact for deployment
         run: |
+          cd pmsoService
           zip release.zip ./* -r
 
       - name: Upload artifact for deployment jobs
@@ -48,7 +50,7 @@ jobs:
         with:
           name: python-app
           path: |
-            release.zip
+            pmsoService/release.zip
             !venv/
 
   deploy:
