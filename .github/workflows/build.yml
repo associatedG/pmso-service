@@ -32,10 +32,10 @@ jobs:
           coverage xml
 
       - name: Get Cover 
-            uses: orgoro/coverage@v3.2
-            with:
-                coverageFile: path/to/coverage.xml
-                token: ${{ secrets.GITHUB_TOKEN }}
+        uses: orgoro/coverage@v3.2
+        with:
+            coverageFile: ./pmsoService/coverage.xml
+            token: ${{ secrets.GITHUB_TOKEN }}
 
 
 
