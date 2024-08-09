@@ -11,10 +11,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -29,4 +28,14 @@ jobs:
       - name: Run tests
         run: |
           cd pmsoService
-          python manage.py test
+          coverage run --omit=*/migrations/* manage.py test
+          coverage xml
+
+      - name: Get Cover 
+        uses: orgoro/coverage@v3.2
+        with:
+            coverageFile: ./pmsoService/coverage.xml
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+
+
