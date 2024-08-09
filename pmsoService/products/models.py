@@ -4,6 +4,16 @@ import uuid
 
 
 class Product(models.Model):
+    CATEGORY_TYPE_ONE = 'Phuy'
+    CATEGORY_TYPE_TWO = 'Thung'
+    CATEGORY_TYPE_THREE = 'Cơ Khí Ô Tô'
+
+    CATEGORY_CHOICE = [
+        (CATEGORY_TYPE_ONE, 'Phuy'),
+        (CATEGORY_TYPE_TWO, 'Thung'),
+        (CATEGORY_TYPE_THREE, 'Cơ Khí Ô Tô')
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(
         max_length=255,
@@ -11,7 +21,10 @@ class Product(models.Model):
         blank=True,
         null=True
     )
-    category = models.CharField(max_length=255)
+    category = models.CharField(
+        max_length=255,
+        choices=CATEGORY_CHOICE,
+    )
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
 
