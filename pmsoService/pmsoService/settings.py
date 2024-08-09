@@ -76,6 +76,8 @@ TEMPLATES = [
     },
 ]
 
+STATIC_ROOT = BASE_DIR/'staticfiles'
+
 WSGI_APPLICATION = "pmsoService.wsgi.application"
 
 
