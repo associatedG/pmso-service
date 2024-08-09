@@ -29,9 +29,12 @@ class ProductOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductOrder
         fields = ['id',
-                  'isUrgent',
-                  'dueDate',
+                  'is_urgent',
+                  'due_date',
                   'status',
                   'products',
-                  'createdAt',
-                  'lastModified']
+                  'created_at',
+                  'last_modified',
+                  'sale_staff_id',
+                  'logistic_staff_id',
+                  'deliverer_id']

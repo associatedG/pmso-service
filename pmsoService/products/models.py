@@ -27,6 +27,24 @@ class Product(models.Model):
     )
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
+    sale_staff_id = models.ForeignKey(
+        'account.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='sale_orders'
+    )
+    logistic_staff_id = models.ForeignKey(
+        'account.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='logistic_orders'
+    )
+    deliverer_id = models.ForeignKey(
+        'account.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='delivery_orders'
+    )
 
 
 class ProductOrder(models.Model):
@@ -46,14 +64,14 @@ class ProductOrder(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     is_urgent = models.BooleanField(default=False)
-    dueDate = models.DateField()
+    due_date = models.DateField()
     status = models.CharField(
         max_length=50,
         choices=STATUS_CHOICES,
         default=OPEN
     )
-    createdAt = models.DateTimeField(auto_now_add=True)
-    lastModified = models.DateTimeField(auto_now_add=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now_add=True, null=True)
 
 
 class ProductOrderProduct(models.Model):
