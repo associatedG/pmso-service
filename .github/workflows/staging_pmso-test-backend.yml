@@ -41,7 +41,6 @@ jobs:
 
       - name: Zip artifact for deployment
         run: |
-          cd pmsoService
           zip release.zip ./* -r
 
       - name: Upload artifact for deployment jobs
@@ -49,7 +48,7 @@ jobs:
         with:
           name: python-app
           path: |
-            pmsoService/release.zip
+            release.zip
             !venv/
 
   deploy:
