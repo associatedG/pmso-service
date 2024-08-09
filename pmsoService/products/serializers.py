@@ -34,5 +34,4 @@ class ProductOrderSerializer(serializers.ModelSerializer):
                   'status',
                   'products',
                   'createdAt',
-                  'lastUpdated',
                   'lastModified']

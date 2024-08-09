@@ -13,7 +13,7 @@ class Product(models.Model):
     )
     category = models.CharField(max_length=255)
     quantity = models.PositiveIntegerField()
-    price = models.IntegerField()
+    price = models.PositiveIntegerField()
 
 
 class ProductOrder(models.Model):
@@ -32,7 +32,7 @@ class ProductOrder(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    isUrgent = models.BooleanField(default=False)
+    is_urgent = models.BooleanField(default=False)
     dueDate = models.DateField()
     status = models.CharField(
         max_length=50,
@@ -40,7 +40,6 @@ class ProductOrder(models.Model):
         default=OPEN
     )
     createdAt = models.DateTimeField(auto_now_add=True)
-    lastUpdated = models.DateField(auto_now=True)
     lastModified = models.DateTimeField(auto_now_add=True, null=True)
 
 
