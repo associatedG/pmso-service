@@ -85,3 +85,12 @@ class TestUserView(APITestCase):
             mock_user_generator("WRONG ROLE"),
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_user_is_active_by_default(self):
+        """Test that a new user is active by default."""
+        self.assertTrue(self.user.is_active)
+
+    def test_deactivate_user(self):
+        """Test deactivating a user."""
+        self.user.deactivate()
+        self.assertFalse(self.user.is_active)
