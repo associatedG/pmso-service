@@ -1,8 +1,10 @@
+from django.utils import timezone
 from django.db import models
+import uuid
 
 
 class Product(models.Model):
-    id = models.AutoField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(
         max_length=255,
         unique=True,
@@ -29,7 +31,7 @@ class ProductOrder(models.Model):
         (COMPLETED, 'Hoàn Thành')
     ]
 
-    id = models.AutoField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     isUrgent = models.BooleanField(default=False)
     dueDate = models.DateField()
     status = models.CharField(
@@ -39,7 +41,7 @@ class ProductOrder(models.Model):
     )
     createdAt = models.DateTimeField(auto_now_add=True)
     lastUpdated = models.DateField(auto_now=True)
-    lastModified = models.DateTimeField(auto_now_add=True)
+    lastModified = models.DateTimeField(auto_now_add=True, null=True)
 
 
 class ProductOrderProduct(models.Model):
