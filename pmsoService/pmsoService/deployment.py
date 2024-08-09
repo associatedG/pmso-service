@@ -8,6 +8,7 @@ DEBUG = False
 SECRET_KEY = os.environ['MY_SECRET_KEY']
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
