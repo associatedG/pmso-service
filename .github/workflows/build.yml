@@ -1,9 +1,6 @@
 name: Run Build
 
 on:
-  push:
-    branches:
-      - '*'
   pull_request:
     branches:
       - main
@@ -11,14 +8,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    permissions:
-      # Gives the action the necessary permissions for publishing new
-      # comments in pull requests.
-      pull-requests: write
-      # Gives the action the necessary permissions for pushing data to the
-      # python-coverage-comment-action branch, and for editing existing
-      # comments (to avoid publishing multiple comments in the same PR)
-      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,10 +26,13 @@ jobs:
         run: |
           cd pmsoService
           coverage run --omit=*/migrations/* manage.py test
+          coverage xml
 
-      - name: Coverage comment
-        id: coverage_comment
-        uses: py-cov-action/python-coverage-comment-action@v3
-        with:
-          GITHUB_TOKEN: ${{ github.token }}
-          COVERAGE_PATH: pmsoService/
+      - name: Get Cover 
+            uses: orgoro/coverage@v3.2
+            with:
+                coverageFile: path/to/coverage.xml
+                token: ${{ secrets.GITHUB_TOKEN }}
+
+
+
