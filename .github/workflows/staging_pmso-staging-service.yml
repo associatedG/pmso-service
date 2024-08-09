@@ -24,34 +24,23 @@ jobs:
 
       - name: Create and start virtual environment
         run: |
-          cd pmsoService
           python -m venv venv
           source venv/bin/activate
       
       - name: Install dependencies
-        run: |
-          cd pmsoService
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Collect static files
-        run: |
-          cd pmsoService 
-          python manage.py collectstatic --noinput
+        run: pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: |
-          cd pmsoService
-          zip release.zip ./* -r
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
           path: |
-            pmsoService/release.zip
+            release.zip
             !venv/
 
   deploy:
@@ -77,4 +66,4 @@ jobs:
         with:
           app-name: 'pmso-staging-service'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A8778CBE102D479E9218717BFC5AB52E }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_FA19ED488FBA4874B00A2577F7917FAC }}
