@@ -5,11 +5,13 @@ from .models import ProductOrder, ProductOrderProduct, Product
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id',
-                  'name',
-                  'category',
-                  'quantity',
-                  'price']
+        fields = [
+            "id",
+            "name",
+            "category",
+            "quantity",
+            "price",
+        ]
 
 
 class ProductOrderProductSerializer(serializers.ModelSerializer):
@@ -17,10 +19,12 @@ class ProductOrderProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductOrderProduct
-        fields = ['id',
-                  'product_orders',
-                  'products',
-                  'quantity']
+        fields = [
+            "id",
+            "product_orders",
+            "products",
+            "quantity",
+        ]
 
 
 class ProductOrderSerializer(serializers.ModelSerializer):
@@ -28,13 +32,15 @@ class ProductOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductOrder
-        fields = ['id',
-                  'is_urgent',
-                  'due_date',
-                  'status',
-                  'products',
-                  'created_at',
-                  'last_modified',
-                  'sale_staff_id',
-                  'logistic_staff_id',
-                  'deliverer_id']
+        fields = [
+            "id",
+            "is_urgent",
+            "due_date",
+            "status",
+            "products",
+            "created_at",
+            "last_modified",
+            "sale_staff_id",
+            "logistic_staff_id",
+            "deliverer_id",
+        ]
