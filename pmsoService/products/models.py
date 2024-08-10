@@ -53,19 +53,19 @@ class ProductOrder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True, null=True)
     # Set on_delete to RESTRICT to prevent any User and ProductOrder deletion
-    sale_staff_id = models.ForeignKey(
+    sale_staff = models.ForeignKey(
         "account.User",
         on_delete=models.RESTRICT,
         null=True,
         related_name="sale_orders",
     )
-    logistic_staff_id = models.ForeignKey(
+    logistic_staff = models.ForeignKey(
         "account.User",
         on_delete=models.RESTRICT,
         null=True,
         related_name="logistic_orders",
     )
-    deliverer_id = models.ForeignKey(
+    deliverer = models.ForeignKey(
         "account.User",
         on_delete=models.RESTRICT,
         null=True,
