@@ -15,3 +15,8 @@ class User(AbstractUser):
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
     role = models.CharField(max_length=255)
     created_at = models.DateField(auto_now=True)
+
+    def deactivate(self):
+        """Deactivate the user by setting is_active to False."""
+        self.is_active = False
+        self.save()

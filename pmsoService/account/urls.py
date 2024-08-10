@@ -8,5 +8,9 @@ urlpatterns = [
         UserRetrieveUpdateDestroyAPIView.as_view(),
         name="user_update_retrieve",
     ),
-    path("", UserListCreateView.as_view(), name="user_list_create"),
+    path(
+        "",
+        UserListCreateView.as_view(),
+        name="user_list_create",
+    ),
 ]
