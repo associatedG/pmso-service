@@ -4,12 +4,12 @@ from .views import ProductOrderListCreateView, ProductOrderRetrieveUpdateDestroy
 urlpatterns = [
     # ProductOrder endpoints
     path(
-        "productorders/<uuid:id>/",
+        "product-orders/<uuid:id>/",
         ProductOrderRetrieveUpdateDestroyView.as_view(),
         name="product_order_detail",
     ),
     path(
-        "productorders/",
+        "product-orders/",
         ProductOrderListCreateView.as_view(),
         name="product_order_list_create",
     ),

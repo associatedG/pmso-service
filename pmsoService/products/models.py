@@ -52,7 +52,6 @@ class ProductOrder(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=OPEN)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True, null=True)
-    # Set on_delete to RESTRICT to prevent any User and ProductOrder deletion
     sale_staff = models.ForeignKey(
         "account.User",
         on_delete=models.RESTRICT,
