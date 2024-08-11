@@ -7,4 +7,4 @@ def get_all_roles_names():
     """
     roles_config_file = "config/roles_config.json"
     roles = read_file(roles_config_file)
-    return [role["name"] for role in roles]
+    return roles["name"]

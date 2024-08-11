@@ -15,7 +15,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductOrderProductSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(read_only=True)
+    products = ProductSerializer(read_only=True)
 
     class Meta:
         model = ProductOrderProduct
