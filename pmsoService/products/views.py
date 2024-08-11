@@ -14,4 +14,13 @@ class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     serializer_class = ProductOrderSerializer
 
 
+class ProductOrderProductListCreateView(generics.ListCreateAPIView):
+    queryset = ProductOrder.objects.all()
+    serializer_class = ProductOrderSerializer
+
+
+class ProductOrderProductRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ProductOrderProduct.objects.all()
+    serializer_class = ProductOrderProductSerializer
+
 

@@ -1,5 +1,3 @@
-[
-    {
-        "name": "SALE_STAFF"
-    }
-]
+{
+    "name": ["SALE_STAFF"]
+}
