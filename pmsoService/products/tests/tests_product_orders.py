@@ -53,26 +53,55 @@ class TestProductOrderView(APITestCase):
 
     def test_create_product_order(self):
         self.client.force_authenticate(user=self.user)
-        print(self.product.id)
+
+        # Create the product ID string
+        product_id = str(self.product.id)
+        print(f"Product ID: {product_id}")
+
+        # Construct the data dictionary with the correct structure
         data = {
             "is_urgent": True,
             "due_date": timezone.now().date(),
             "status": "Open",
             "products": [
                 {
-                    "id": self.product.id,
+                    "product": product_id,  # Make sure this key is correctly added
                     "quantity": 3
                 }
             ],
             "sale_staff_id": self.user.id,
         }
-        try:
-            response = self.client.post(reverse("product_order_list_create"), data, format="json")
-            print(response.status_code)
-            print(response.content)
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        except Exception as e:
-            print(f"Exception occurred: {e}")
+        print(f"Data sent to API: {data}")  # Print the data to ensure it's correct
+
+        # Send the POST request
+        response = self.client.post(reverse("product_order_list_create"), data, format="json")
+        print(response.status_code)
+        print(response.content)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    # def test_create_product_order(self):
+    #     self.client.force_authenticate(user=self.user)
+    #     product_id = str(self.product.name)
+    #     print(self.product.name)
+    #     data = {
+    #         "is_urgent": True,
+    #         "due_date": timezone.now().date(),
+    #         "status": "Open",
+    #         "products": [
+    #             {
+    #                 "id": product_id,
+    #                 "quantity": 3
+    #             }
+    #         ],
+    #         "sale_staff_id": self.user.id,
+    #     }
+    #     try:
+    #         response = self.client.post(reverse("product_order_list_create"), data, format="json")
+    #         print(response.status_code)
+    #         print(response.content)
+    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    #     except Exception as e:
+    #         print(f"Exception occurred: {e}")
 
     def test_update_product_order(self):
         self.client.force_authenticate(user=self.user)
