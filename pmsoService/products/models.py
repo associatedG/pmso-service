@@ -49,6 +49,7 @@ class ProductOrder(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=OPEN)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now_add=True, null=True)
+    products = models.ManyToManyField(Product, through="ProductOrderProduct")
     sale_staff = models.ForeignKey(
         "account.User",
         on_delete=models.RESTRICT,
@@ -70,6 +71,6 @@ class ProductOrder(models.Model):
 
 
 class ProductOrderProduct(models.Model):
-    product_orders = models.ForeignKey(ProductOrder, on_delete=models.CASCADE)
-    products = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product_order = models.ForeignKey(ProductOrder, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()

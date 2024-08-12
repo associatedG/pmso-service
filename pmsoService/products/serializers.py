@@ -15,16 +15,16 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ProductOrderProductSerializer(serializers.ModelSerializer):
-    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+    product = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = ProductOrderProduct
         fields = [
             "id",
-            "product_orders",
-            "products",
+            "product",
             "quantity",
         ]
+        extra_kwargs = {'product': {'required': True}}
 
 
 class ProductOrderSerializer(serializers.ModelSerializer):
@@ -46,8 +46,16 @@ class ProductOrderSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
+        print(validated_data)
         products_data = validated_data.pop('products')
         product_order = ProductOrder.objects.create(**validated_data)
         for product_data in products_data:
-            ProductOrderProduct.objects.create(product_order=product_order, **product_data)
+            print(product_data)
+            # Retrieve the product instance by ID
+            product = Product.objects.get(id=product_data["id"])
+            ProductOrderProduct.objects.create(
+                product_order=product_order,
+                product=product,
+                quantity=product_data.get('quantity')
+            )
         return product_order

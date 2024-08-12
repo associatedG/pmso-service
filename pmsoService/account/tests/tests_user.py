@@ -8,7 +8,6 @@ import random
 
 User = get_user_model()
 
-
 def generate_random_string(length=10):
     """Generate a random string of a given length."""
     letters = string.ascii_letters + string.digits
