@@ -1,16 +1,25 @@
 from django.urls import path
-from .views import ProductOrderListCreateView, ProductOrderRetrieveUpdateDestroyView
+from .views import ProductOrderListCreateView, ProductListCreateView, ProductRetrieveUpdateDestroyView, ProductOrderRetrieveUpdateDestroyView, ProductOrderProductListCreateView,ProductOrderProductRetrieveUpdateDestroyView
 
 urlpatterns = [
-    # ProductOrder endpoints
     path(
-        "product-orders/<uuid:id>/",
+        "<uuid:id>/",
         ProductOrderRetrieveUpdateDestroyView.as_view(),
         name="product_order_detail",
     ),
     path(
-        "product-orders/",
+        "",
         ProductOrderListCreateView.as_view(),
         name="product_order_list_create",
+    ),
+    path(
+        "products/<uuid:id>/",
+        ProductRetrieveUpdateDestroyView.as_view(),
+        name="products_detail",
+    ),
+    path(
+        "products/",
+        ProductListCreateView.as_view(),
+        name="product_list_create",
     ),
 ]

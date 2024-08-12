@@ -44,3 +44,10 @@ class ProductOrderSerializer(serializers.ModelSerializer):
             "logistic_staff_id",
             "deliverer_id",
         ]
+
+    def create(self, validated_data):
+        products_data = validated_data.pop('products')
+        product_order = ProductOrder.objects.create(**validated_data)
+        for product_data in products_data:
+            ProductOrderProduct.objects.create(product_order=product_order, **product_data)
+        return product_order

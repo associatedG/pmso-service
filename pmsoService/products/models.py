@@ -27,9 +27,6 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
 
-    def __str__(self):
-        return self.name
-
 
 class ProductOrder(models.Model):
     OPEN = "Open"
