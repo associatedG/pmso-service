@@ -25,6 +25,12 @@ class ProductOrderProductSerializer(serializers.ModelSerializer):
             "quantity",
         ]
 
+    def to_representation(self, instance):
+        # Ensure correct access to product ID
+        representation = super().to_representation(instance)
+        representation['product'] = str(instance.product.id)
+        return representation
+
 
 class ProductOrderSerializer(serializers.ModelSerializer):
     products = ProductOrderProductSerializer(many=True)
@@ -45,16 +51,17 @@ class ProductOrderSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        print(f"Validated data: {validated_data}")
         products_data = validated_data.pop('products')
+        print(f"Products data: {products_data}")  # Log products_data
         product_order = ProductOrder.objects.create(**validated_data)
         for product_data in products_data:
-            print(f"Product data: {product_data}")
-            # Retrieve the product instance by ID
-            product = product_data["product"]
+            print(f"Product data: {product_data}")  # Log individual product data
+            product = product_data.get('product')
+            if not product:
+                raise ValueError("Product ID is missing")
             ProductOrderProduct.objects.create(
                 product_order=product_order,
-                product=product_data["product"],
-                quantity=product_data.get('quantity')
+                product=product_data['product'],
+                quantity=product_data['quantity']
             )
         return product_order

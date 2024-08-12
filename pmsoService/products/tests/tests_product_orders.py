@@ -19,24 +19,24 @@ def generate_random_string(length=10):
 class TestProductOrderView(APITestCase):
 
     @classmethod
-    def setUpTestData(cls):
-        cls.user = User.objects.create_user(username="testuser", password="testpassword")
-        cls.client = APIClient()
-        cls.product = Product.objects.create(
+    def setUpTestData(self):
+        self.user = User.objects.create_user(username="testuser", password="testpassword")
+        self.client = APIClient()
+        self.product = Product.objects.create(
             name="Test Product",
             category=Product.CATEGORY_TYPE_ONE,
             quantity=100,
             price=500.0
         )
-        cls.product_order = ProductOrder.objects.create(
+        self.product_order = ProductOrder.objects.create(
             is_urgent=False,
             due_date=timezone.now().date(),
             status="Pending",
-            sale_staff_id=cls.user.id,
+            sale_staff_id=self.user.id,
         )
         ProductOrderProduct.objects.create(
-            product_order=cls.product_order,
-            product=cls.product,
+            product_order=self.product_order,
+            product=self.product,
             quantity=2,
         )
 
@@ -54,29 +54,28 @@ class TestProductOrderView(APITestCase):
     def test_create_product_order(self):
         self.client.force_authenticate(user=self.user)
 
-        # Create the product ID string
         product_id = str(self.product.id)
+        product_name = str(self.product.name)
         print(f"Product ID: {product_id}")
 
-        # Construct the data dictionary with the correct structure
         data = {
             "is_urgent": True,
             "due_date": timezone.now().date(),
             "status": "Open",
             "products": [
                 {
-                    "product": product_id,  # Make sure this key is correctly added
+                    "product": product_id,
                     "quantity": 3
                 }
             ],
             "sale_staff_id": self.user.id,
         }
-        print(f"Data sent to API: {data}")  # Print the data to ensure it's correct
+        print(f"Data sent to API: {data}")
 
         # Send the POST request
         response = self.client.post(reverse("product_order_list_create"), data, format="json")
-        print(response.status_code)
-        print(response.content)
+        # print(response.status_code)
+        # print(response.content)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     # def test_create_product_order(self):
@@ -102,6 +101,8 @@ class TestProductOrderView(APITestCase):
     #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
     #     except Exception as e:
     #         print(f"Exception occurred: {e}")
+
+
 
     def test_update_product_order(self):
         self.client.force_authenticate(user=self.user)
