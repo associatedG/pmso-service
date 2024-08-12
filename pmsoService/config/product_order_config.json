@@ -1,0 +1,15 @@
+{
+    "is_urgent": true,
+    "due_date": "2024-08-11",
+    "status": "Open",
+    "products": [
+        {
+            "product": "product_uuid_1",
+            "quantity": 5
+        },
+        {
+            "product": "product_uuid_2",
+            "quantity": 10
+        }
+    ]
+}

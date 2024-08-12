@@ -3,12 +3,22 @@ from .views import ProductOrderListCreateView, ProductListCreateView, ProductRet
 
 urlpatterns = [
     path(
-        "<uuid:id>/",
+        "product-orders-product/<uuid:id>/",
+        ProductOrderProductRetrieveUpdateDestroyView.as_view(),
+        name="product_order_detail",
+    ),
+    path(
+        "product-orders-product/",
+        ProductOrderProductListCreateView.as_view(),
+        name="product_order_list_create",
+    ),
+    path(
+        "product-orders/<uuid:id>/",
         ProductOrderRetrieveUpdateDestroyView.as_view(),
         name="product_order_detail",
     ),
     path(
-        "",
+        "product-orders/",
         ProductOrderListCreateView.as_view(),
         name="product_order_list_create",
     ),
