@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ProductOrder, ProductOrderProduct, Product
+from .models import ProductOrder, ProductOrderProduct, Product, Customer
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -56,3 +56,34 @@ class ProductOrderSerializer(serializers.ModelSerializer):
                 product_order=product_order, **product_data
             )
         return product_order
+
+
+class CustomerSerializer(serializers.ModelSerializer):
+    orders = ProductOrderSerializer(many=True)
+    current_orders = serializers.SerializerMethodField()
+    number_of_orders = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Customer
+        fields = [
+            "id",
+            "name",
+            "phone",
+            "tier",
+            "fax",
+            "email",
+            "contact_list",
+            "address",
+            "note",
+            "created_at",
+            "modified_at",
+            "orders",
+            "current_orders",
+            "number_of_orders",
+        ]
+
+    def get_number_of_orders(self, obj):
+        return obj.orders.count()
+
+    def get_current_orders(self, obj):
+        return obj.orders.filter(status__ne="COMPLETED")

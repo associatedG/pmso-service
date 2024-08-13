@@ -15,7 +15,7 @@ class Customer(models.Model):
         (TIER_3, "Cấp độ 3"),
     ]
 
-    customer_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
     phone = PhoneNumberField(region="VN", blank=True)
     tier = models.CharField(max_length=50, choices=TIER_CHOICES, default=TIER_1)
