@@ -4,12 +4,39 @@ from phonenumber_field.modelfields import PhoneNumberField
 import uuid
 
 
+class Customer(models.Model):
+    TIER_1 = "T1"
+    TIER_2 = "T2"
+    TIER_3 = "T3"
+
+    TIER_CHOICES = [
+        (TIER_1, "Cấp độ 1"),
+        (TIER_2, "Cấp độ 2"),
+        (TIER_3, "Cấp độ 3"),
+    ]
+
+    customer_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True, blank=True, null=True)
+    phone = PhoneNumberField(region="VN", blank=True)
+    tier = models.CharField(max_length=50, choices=TIER_CHOICES, default=TIER_1)
+    fax = models.IntegerField(blank=True, null=True)
+    contact_list = models.JSONField(blank=True, null=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    note = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+
+default_customer, _ = Customer.objects.get_or_create(name="Default Customer")
+
+
 class Product(models.Model):
     CATEGORY_TYPE_ONE = "Phuy"
     CATEGORY_TYPE_TWO = "Thung"
     CATEGORY_TYPE_THREE = "Cơ Khí Ô Tô"
 
-    CATEGORY_CHOICE = [
+    CATEGORY_CHOICES = [
         (CATEGORY_TYPE_ONE, "Phuy"),
         (CATEGORY_TYPE_TWO, "Thung"),
         (CATEGORY_TYPE_THREE, "Cơ Khí Ô Tô"),
@@ -23,7 +50,7 @@ class Product(models.Model):
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
     category = models.CharField(
         max_length=255,
-        choices=CATEGORY_CHOICE,
+        choices=CATEGORY_CHOICES,
     )
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
@@ -54,9 +81,10 @@ class ProductOrder(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=OPEN)
     created_at = models.DateTimeField(auto_now_add=True)
     last_modified = models.DateTimeField(auto_now=True, null=True)
-    # Set on_delete to PROTECT to prevent deletion of associated Customer
     customer = models.ForeignKey(
-        "Customer", on_delete=models.PROTECT, related_name="customer_orders"
+        "Customer",
+        on_delete=models.PROTECT,
+        related_name="customer_orders",
     )
     last_modified = models.DateTimeField(auto_now=True, null=True)
 
@@ -80,8 +108,11 @@ class ProductOrder(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        if not self.customer:
-            raise ValueError("Customer is required.")
+        if not self.customer_id:
+            default_customer, _ = Customer.objects.get_or_create(
+                name="Default Customer"
+            )
+            self.customer = default_customer
         super().save(*args, **kwargs)
 
 
@@ -91,27 +122,3 @@ class ProductOrderProduct(models.Model):
     )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-
-
-class Customer(models.Model):
-    TIER_1 = "T1"
-    TIER_2 = "T2"
-    TIER_3 = "T3"
-
-    TIER_CHOICES = [
-        (TIER_1, "Cấp độ 1"),
-        (TIER_2, "Cấp độ 2"),
-        (TIER_3, "Cấp độ 3"),
-    ]
-
-    customer_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255, unique=True, blank=True, null=True)
-    phone = PhoneNumberField(region="VN", blank=True)
-    tier = models.CharField(max_length=50, choices=TIER_CHOICES, default=TIER_1)
-    fax = models.IntegerField(blank=True, null=True)
-    contact_list = models.JSONField(blank=True, null=True)
-    email = models.EmailField(max_length=255, blank=True, null=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
-    note = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
