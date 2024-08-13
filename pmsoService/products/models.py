@@ -27,6 +27,9 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
 
+    def __str__(self):
+        return self.name
+
 
 class ProductOrder(models.Model):
     OPEN = "Open"
@@ -68,9 +71,13 @@ class ProductOrder(models.Model):
         null=True,
         related_name="delivery_orders",
     )
-
+    def __str__(self):
+        return f"Order {self.id} - {self.status}"
 
 class ProductOrderProduct(models.Model):
     product_order = models.ForeignKey(ProductOrder, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.product.name} ({self.quantity})"

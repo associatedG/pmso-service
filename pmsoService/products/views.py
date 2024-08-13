@@ -13,16 +13,15 @@ class ProductRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProductSerializer
 
 
-
 class ProductOrderListCreatedView(generics.ListCreateAPIView):
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
 
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+     # def create(self, request, *args, **kwargs):
+     #     serializer = self.get_serializer(data=request.data)
+     #     serializer.is_valid(raise_exception=True)
+     #     self.perform_create(serializer)
+     #     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
