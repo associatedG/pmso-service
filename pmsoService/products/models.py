@@ -28,9 +28,6 @@ class Customer(models.Model):
     modified_at = models.DateTimeField(auto_now=True)
 
 
-default_customer, _ = Customer.objects.get_or_create(name="Default Customer")
-
-
 class Product(models.Model):
     CATEGORY_TYPE_ONE = "Phuy"
     CATEGORY_TYPE_TWO = "Thung"
@@ -86,8 +83,6 @@ class ProductOrder(models.Model):
         on_delete=models.PROTECT,
         related_name="customer_orders",
     )
-    last_modified = models.DateTimeField(auto_now=True, null=True)
-
     sale_staff = models.ForeignKey(
         "account.User",
         on_delete=models.PROTECT,
