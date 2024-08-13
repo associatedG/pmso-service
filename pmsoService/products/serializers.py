@@ -40,6 +40,7 @@ class ProductOrderSerializer(serializers.ModelSerializer):
             "is_urgent",
             "due_date",
             "status",
+            "customer",
             "sale_staff",
             "logistic_staff",
             "deliverer",
