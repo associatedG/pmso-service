@@ -50,9 +50,9 @@ class ProductOrder(models.Model):
     is_urgent = models.BooleanField(default=False)
     due_date = models.DateField()
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=OPEN)
-    created_at = models.DateTimeField(auto_now=True)
-    last_modified = models.DateTimeField(auto_now_add=True, null=True)
-    # Set on_delete to RESTRICT to prevent any User and ProductOrder deletion
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_modified = models.DateTimeField(auto_now=True, null=True)
+
     sale_staff = models.ForeignKey(
         "account.User",
         on_delete=models.RESTRICT,
