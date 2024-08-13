@@ -85,4 +85,4 @@ class TestProductOrderView(APITestCase):
             reverse("product_order_list_create"), MOCK_PRODUCT_ORDER, format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        
+

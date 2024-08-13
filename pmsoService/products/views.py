@@ -12,6 +12,7 @@ class ProductOrderListCreateView(generics.ListCreateAPIView):
 class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
+    lookup_field = "id"
 
 
 

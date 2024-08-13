@@ -30,7 +30,6 @@ class ProductOrderProductSerializer(serializers.ModelSerializer):
         return value
 
 
-
 class ProductOrderSerializer(serializers.ModelSerializer):
     products = ProductOrderProductSerializer(many=True)
 
@@ -55,3 +54,4 @@ class ProductOrderSerializer(serializers.ModelSerializer):
         for product_data in products_data:
             ProductOrderProduct.objects.create(product_order=product_order, **product_data)
         return product_order
+
