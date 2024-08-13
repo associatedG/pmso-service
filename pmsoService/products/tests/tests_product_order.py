@@ -50,12 +50,18 @@ class TestProductOrderView(APITestCase):
 
     def test_create_product_order(self):
         self.client.force_authenticate(user=self.user)
+        product_id = self.product.id
 
         data = {
             "is_urgent": True,
             "due_date": timezone.now().date(),
             "status": "Open",
+            "products": [{
+                "product_id": product_id,
+                "quantity": 100,
+            }]
         }
+
         response = self.client.post(reverse("product_order_list_create"),  data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.product_order.refresh_from_db()
