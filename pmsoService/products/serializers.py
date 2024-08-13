@@ -60,7 +60,7 @@ class ProductOrderSerializer(serializers.ModelSerializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
-    orders = ProductOrderSerializer(many=True)
+    orders = ProductOrderSerializer(many=True, read_only=True)
     current_orders = serializers.SerializerMethodField()
     number_of_orders = serializers.SerializerMethodField()
 
@@ -87,4 +87,6 @@ class CustomerSerializer(serializers.ModelSerializer):
         return obj.orders.count()
 
     def get_current_orders(self, obj):
-        return obj.orders.filter(status__ne="COMPLETED")
+        return ProductOrderSerializer(
+            obj.orders.exclude(status="COMPLETED"), many=True
+        ).data

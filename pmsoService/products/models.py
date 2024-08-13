@@ -24,8 +24,16 @@ class Customer(models.Model):
     email = models.EmailField(max_length=255, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     note = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Customer"
+        verbose_name_plural = "Customers"
 
 
 class Product(models.Model):
@@ -55,6 +63,11 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Product"
+        verbose_name_plural = "Products"
+
 
 class ProductOrder(models.Model):
     OPEN = "Open"
@@ -76,13 +89,13 @@ class ProductOrder(models.Model):
     is_urgent = models.BooleanField(default=False)
     due_date = models.DateField()
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=OPEN)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     last_modified = models.DateTimeField(auto_now=True, null=True)
     customer = models.ForeignKey(
         "Customer",
         on_delete=models.PROTECT,
         null=True,
-        related_name="customer_orders",
+        related_name="orders",
     )
     sale_staff = models.ForeignKey(
         "account.User",
@@ -103,13 +116,13 @@ class ProductOrder(models.Model):
         related_name="delivery_orders",
     )
 
-    # def save(self, *args, **kwargs):
-    #     if not self.customer_id:
-    #         default_customer, _ = Customer.objects.get_or_create(
-    #             name="Default Customer"
-    #         )
-    #         self.customer = default_customer
-    #     super().save(*args, **kwargs)
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ["due_date"]
+        verbose_name = "Product Order"
+        verbose_name_plural = "Product Orders"
 
 
 class ProductOrderProduct(models.Model):
@@ -118,3 +131,10 @@ class ProductOrderProduct(models.Model):
     )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.product_order.name} - {self.product.name}"
+
+    class Meta:
+        verbose_name = "Product Order Product"
+        verbose_name_plural = "Product Order Products"
