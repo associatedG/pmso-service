@@ -58,19 +58,13 @@ class TestProductOrderView(APITestCase):
 
         # product_id = str(self.product.id)
         # product_name = str(self.product.name)
-        # print(f"Product ID: {product_id}")
 
         data = {
             "is_urgent": True,
             "due_date": timezone.now().date(),
             "status": "Open",
         }
-        # print(f"Data sent to API: {data}")
-
-        # Send the POST request
         response = self.client.post(reverse("product_order_list_create"),  data, format="json")
-        # print(response.status_code)
-        # print(response.content)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.product_order.refresh_from_db()
         self.assertEqual(self.product_order.status, "In Production")
