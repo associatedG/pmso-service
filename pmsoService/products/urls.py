@@ -2,7 +2,7 @@ from django.urls import path
 from .views import ProductOrderListCreateView, ProductOrderRetrieveUpdateDestroyView
 
 urlpatterns = [
-    # ProductOrder endpoints
+
     path(
         "productorders/<uuid:id>/",
         ProductOrderRetrieveUpdateDestroyView.as_view(),

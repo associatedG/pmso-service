@@ -21,8 +21,7 @@ class ProductOrderProductSerializer(serializers.ModelSerializer):
         model = ProductOrderProduct
         fields = [
             "id",
-            "product_orders",
-            "products",
+            "product_order",
             "quantity",
         ]
 
@@ -44,3 +43,6 @@ class ProductOrderSerializer(serializers.ModelSerializer):
             "logistic_staff_id",
             "deliverer_id",
         ]
+
+    def create(self, validated_data):
+        return ProductOrder.objects.create(**validated_data)
