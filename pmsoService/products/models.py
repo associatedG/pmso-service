@@ -102,13 +102,13 @@ class ProductOrder(models.Model):
         related_name="delivery_orders",
     )
 
-    def save(self, *args, **kwargs):
-        if not self.customer_id:
-            default_customer, _ = Customer.objects.get_or_create(
-                name="Default Customer"
-            )
-            self.customer = default_customer
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if not self.customer_id:
+    #         default_customer, _ = Customer.objects.get_or_create(
+    #             name="Default Customer"
+    #         )
+    #         self.customer = default_customer
+    #     super().save(*args, **kwargs)
 
 
 class ProductOrderProduct(models.Model):
