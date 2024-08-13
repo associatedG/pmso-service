@@ -17,18 +17,17 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductOrderProductSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
     product_id = serializers.PrimaryKeyRelatedField(
-        write_only=True, source='product', queryset=Product.objects.all()
+        write_only=True, source="product", queryset=Product.objects.all()
     )
 
     class Meta:
         model = ProductOrderProduct
-        fields = ['product', 'product_id', 'quantity']
+        fields = ["product", "product_id", "quantity"]
 
     def validate_quantity(self, value):
         if value <= 0:
             raise serializers.ValidationError("Quantity must be greater than zero.")
         return value
-
 
 
 class ProductOrderSerializer(serializers.ModelSerializer):
@@ -50,8 +49,10 @@ class ProductOrderSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        products_data = validated_data.pop('products')
+        products_data = validated_data.pop("products")
         product_order = ProductOrder.objects.create(**validated_data)
         for product_data in products_data:
-            ProductOrderProduct.objects.create(product_order=product_order, **product_data)
+            ProductOrderProduct.objects.create(
+                product_order=product_order, **product_data
+            )
         return product_order
