@@ -68,7 +68,6 @@ class TestProductOrderView(APITestCase):
             {"status": "Delivering"},
             format="json"
         )
-        # print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete_product_order(self):
