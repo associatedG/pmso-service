@@ -50,7 +50,7 @@ class ProductOrder(models.Model):
     is_urgent = models.BooleanField(default=False)
     due_date = models.DateField()
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=OPEN)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now=True)
     last_modified = models.DateTimeField(auto_now_add=True, null=True)
     # Set on_delete to RESTRICT to prevent any User and ProductOrder deletion
     sale_staff = models.ForeignKey(
@@ -74,6 +74,6 @@ class ProductOrder(models.Model):
 
 
 class ProductOrderProduct(models.Model):
-    product_orders = models.ForeignKey(ProductOrder, on_delete=models.CASCADE)
-    products = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product_order = models.ForeignKey(ProductOrder, on_delete=models.CASCADE, related_name='products')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
