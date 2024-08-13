@@ -81,6 +81,7 @@ class ProductOrder(models.Model):
     customer = models.ForeignKey(
         "Customer",
         on_delete=models.PROTECT,
+        null=True,
         related_name="customer_orders",
     )
     sale_staff = models.ForeignKey(
