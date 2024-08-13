@@ -34,11 +34,6 @@ class TestProductOrderView(APITestCase):
             status="In Production",
             sale_staff_id=self.user.id,
         )
-        # ProductOrderProduct.objects.create(
-        #     product_order=self.product_order,
-        #     product=self.product,
-        #     quantity=2,
-        # )
 
     def test_get_product_order(self):
         self.client.force_authenticate(user=self.user)
@@ -56,9 +51,6 @@ class TestProductOrderView(APITestCase):
     def test_create_product_order(self):
         self.client.force_authenticate(user=self.user)
 
-        # product_id = str(self.product.id)
-        # product_name = str(self.product.name)
-
         data = {
             "is_urgent": True,
             "due_date": timezone.now().date(),
@@ -68,31 +60,6 @@ class TestProductOrderView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.product_order.refresh_from_db()
         self.assertEqual(self.product_order.status, "In Production")
-
-    # def test_create_product_order(self):
-    #     self.client.force_authenticate(user=self.user)
-    #     product_id = str(self.product.name)
-    #     print(self.product.name)
-    #     data = {
-    #         "is_urgent": True,
-    #         "due_date": timezone.now().date(),
-    #         "status": "Open",
-    #         "products": [
-    #             {
-    #                 "id": product_id,
-    #                 "quantity": 3
-    #             }
-    #         ],
-    #         "sale_staff_id": self.user.id,
-    #     }
-    #     try:
-    #         response = self.client.post(reverse("product_order_list_create"), data, format="json")
-    #         print(response.status_code)
-    #         print(response.content)
-    #         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #     except Exception as e:
-    #         print(f"Exception occurred: {e}")
-
 
     def test_update_product_order(self):
         self.client.force_authenticate(user=self.user)
