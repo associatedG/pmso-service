@@ -1,6 +1,11 @@
 from rest_framework import generics
-from .models import Product, ProductOrder, ProductOrderProduct
-from .serializers import ProductSerializer, ProductOrderSerializer, ProductOrderProductSerializer
+from .models import Product, ProductOrder, ProductOrderProduct, Customer
+from .serializers import (
+    ProductSerializer,
+    ProductOrderSerializer,
+    ProductOrderProductSerializer,
+    CustomerSerializer,
+)
 
 
 # ProductOrder View
@@ -15,4 +20,6 @@ class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     lookup_field = "id"
 
 
-
+class CustomerListCreateView(generics.ListCreateAPIView):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer
