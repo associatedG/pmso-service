@@ -20,7 +20,7 @@ class Customer(models.Model):
     phone = PhoneNumberField(region="VN", blank=True)
     tier = models.CharField(max_length=50, choices=TIER_CHOICES, default=TIER_1)
     fax = models.IntegerField(blank=True, null=True)
-    contact_list = models.JSONField(blank=True, null=True)
+    contact_list = models.JSONField(blank=True, null=True, default=dict)
     email = models.EmailField(max_length=255, blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     note = models.TextField(blank=True, null=True)
