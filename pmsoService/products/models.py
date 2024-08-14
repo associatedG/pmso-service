@@ -17,7 +17,7 @@ class Customer(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
-    phone = PhoneNumberField(region="VN", blank=True)
+    phone = models.CharField(max_length=10, blank=True, null=True)
     tier = models.CharField(max_length=50, choices=TIER_CHOICES, default=TIER_1)
     fax = models.IntegerField(blank=True, null=True)
     contact_list = models.JSONField(blank=True, null=True, default=dict)
