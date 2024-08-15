@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import ProductOrder, ProductOrderProduct, Product, Customer
+import re
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -90,3 +91,11 @@ class CustomerSerializer(serializers.ModelSerializer):
         return ProductOrderSerializer(
             obj.orders.exclude(status="COMPLETED"), many=True
         ).data
+
+    def validate_phone(self, value):
+        pattern = r"^(0[35789])([0-9]{8})\b$"
+        if not re.match(pattern, value):
+            raise serializers.ValidationError(
+                "Invalid phone number format. Expected format: 0[35789] followed by 8 digits."
+            )
+        return value

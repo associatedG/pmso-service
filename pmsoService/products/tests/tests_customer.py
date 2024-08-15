@@ -5,10 +5,20 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from products.models import Customer
 from account.models import User
+import re
 
 
 def generate_random_string(length=10):
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+
+
+def generate_phone_number():
+    # First digit must be 0, followed by 3, 5, 7, 8, or 9, then 8 random digits
+    first_digit = "0"
+    second_digit = random.choice(["3", "5", "7", "8", "9"])
+    remaining_digits = "".join(random.choices("0123456789", k=8))
+
+    return first_digit + second_digit + remaining_digits
 
 
 def generate_customer_data(
@@ -24,14 +34,14 @@ def generate_customer_data(
     return {
         "name": name or generate_random_string(),
         "email": email or f"{generate_random_string()}@example.com",
-        "phone": phone or f"+84 {random.randint(100000000, 999999999)}",
+        "phone": phone or generate_phone_number(),
         "tier": tier or "T2",
         "fax": fax or random.randint(100000, 999999),
         "contact_list": contact_list
         or [
             {
                 "name": generate_random_string(),
-                "phone": f"+84{random.randint(100000000, 999999999)}",
+                "phone": generate_phone_number(),
             }
         ],
         "address": address or f"{random.randint(1, 999)} Nguyen Chi Thanh",
@@ -74,13 +84,12 @@ class CustomerListCreateViewTest(APITestCase):
 
     def test_create_invalid_phone_number(self):
         self.client.force_authenticate(user=self.user)
-        invalid_customer = generate_customer_data(phone="+1 4710295719")
+        invalid_customer = generate_customer_data(phone="0291049192")
         response = self.client.post(self.url, invalid_customer, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_list_customers(self):
         self.client.force_authenticate(user=self.user)
-
         response = self.client.get(self.url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
