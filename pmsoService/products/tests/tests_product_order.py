@@ -24,7 +24,7 @@ class TestProductOrderView(APITestCase):
         self.client = APIClient()
         self.product = Product.objects.create(
             name="Test Product",
-            category=Product.CATEGORY_TYPE_ONE,
+            category="Phuy",
             quantity=100,
             price=500.0
         )
