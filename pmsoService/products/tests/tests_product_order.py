@@ -37,7 +37,7 @@ class TestProductOrderView(APITestCase):
 
     def test_get_product_order(self):
         self.client.force_authenticate(user=self.user)
-        print(f"Product_oder_id: {self.product_order.id}")
+        # print(f"Product_oder_id: {self.product_order.id}")
         response = self.client.get(reverse("product_order_detail", kwargs={"id": self.product_order.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], str(self.product_order.id))
