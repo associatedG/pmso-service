@@ -38,12 +38,12 @@ class Customer(models.Model):
 
 class Product(models.Model):
     CATEGORY_TYPE_ONE = "Phuy"
-    CATEGORY_TYPE_TWO = "Thung"
+    CATEGORY_TYPE_TWO = "Thùng"
     CATEGORY_TYPE_THREE = "Cơ Khí Ô Tô"
 
     CATEGORY_CHOICES = [
         (CATEGORY_TYPE_ONE, "Phuy"),
-        (CATEGORY_TYPE_TWO, "Thung"),
+        (CATEGORY_TYPE_TWO, "Thùng"),
         (CATEGORY_TYPE_THREE, "Cơ Khí Ô Tô"),
     ]
 
