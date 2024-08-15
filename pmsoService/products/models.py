@@ -15,7 +15,7 @@ class Customer(models.Model):
         (TIER_3, "Cấp độ 3"),
     ]
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
     phone = models.CharField(max_length=10, blank=True, null=True)
     tier = models.CharField(max_length=50, choices=TIER_CHOICES, default=TIER_1)
@@ -38,7 +38,7 @@ class Customer(models.Model):
 
 class Product(models.Model):
     CATEGORY_TYPE_ONE = "Phuy"
-    CATEGORY_TYPE_TWO = "Thung"
+    CATEGORY_TYPE_TWO = "Thùng"
     CATEGORY_TYPE_THREE = "Cơ Khí Ô Tô"
 
     CATEGORY_CHOICES = [
