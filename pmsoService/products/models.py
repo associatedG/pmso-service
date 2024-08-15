@@ -75,6 +75,7 @@ class ProductOrder(models.Model):
     IN_PRODUCTION = "In Production"
     DELIVERING = "Delivering"
     COMPLETED = "Completed"
+    CANCELLED = "Cancelled"
 
     STATUS_CHOICES = [
         (OPEN, "Mở"),
@@ -82,6 +83,7 @@ class ProductOrder(models.Model):
         (IN_PRODUCTION, "Đang Sản Xuất"),
         (DELIVERING, "Giao Hàng"),
         (COMPLETED, "Hoàn Thành"),
+        (CANCELLED, "Huỷ Đơn"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
