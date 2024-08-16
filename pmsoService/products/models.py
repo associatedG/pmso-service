@@ -5,9 +5,9 @@ import uuid
 
 
 class Customer(models.Model):
-    TIER_1 = "T1"
-    TIER_2 = "T2"
-    TIER_3 = "T3"
+    TIER_1 = "tier 1"
+    TIER_2 = "tier 2"
+    TIER_3 = "tier 3"
 
     TIER_CHOICES = [
         (TIER_1, "Cấp độ 1"),
@@ -16,8 +16,8 @@ class Customer(models.Model):
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255, unique=True, blank=True, null=True)
-    phone = models.CharField(max_length=10, blank=True, null=True)
+    name = models.CharField(max_length=255, unique=True)
+    phone = models.CharField(max_length=10)
     tier = models.CharField(max_length=50, choices=TIER_CHOICES, default=TIER_1)
     fax = models.IntegerField(blank=True, null=True)
     contact_list = models.JSONField(blank=True, null=True, default=dict)
