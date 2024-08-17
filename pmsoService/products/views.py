@@ -32,6 +32,7 @@ class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
                 return Response({"status": "Product Order is already cancelled"}, status=status.HTTP_400_BAD_REQUEST)
         return super().partial_update(request, *args, **kwargs)
 
+
 class CustomerListCreateView(generics.ListCreateAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
