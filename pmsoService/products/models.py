@@ -11,7 +11,6 @@ STATUS_CHOICES = get_all_status_choices()
 CATEGORY_CHOICES = get_all_category_choices()
 
 class Customer(models.Model):
-
     id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
     phone = models.CharField(max_length=10, blank=True, null=True)
@@ -31,7 +30,6 @@ class Customer(models.Model):
 
 
 class Product(models.Model):
-
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
