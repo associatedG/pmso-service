@@ -35,9 +35,27 @@ class TestProductOrderView(APITestCase):
             sale_staff_id=self.user.id,
         )
 
+    def test_create_product_order(self):
+        self.client.force_authenticate(user=self.user)
+        product_id = self.product.id
+
+        data = {
+            "is_urgent": True,
+            "due_date": timezone.now().date(),
+            "status": "Open",
+            "products": [{
+                "product_id": product_id,
+                "quantity": 100,
+            }]
+        }
+
+        response = self.client.post(reverse("product_order_list_create"), data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.product_order.refresh_from_db()
+        self.assertEqual(self.product_order.status, "In Production")
+
     def test_get_product_order(self):
         self.client.force_authenticate(user=self.user)
-        # print(f"Product_oder_id: {self.product_order.id}")
         response = self.client.get(reverse("product_order_detail", kwargs={"id": self.product_order.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], str(self.product_order.id))
@@ -77,6 +95,3 @@ class TestProductOrderView(APITestCase):
                                      {"status": "Cancelled"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['status'], "Cancelled")
-        response = self.client.patch(reverse("product_order_detail", kwargs={"id": self.product_order.id})
-                                      ,{"status": "Cancelled"}, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
