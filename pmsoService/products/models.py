@@ -10,7 +10,6 @@ with open('config/choices_config.json') as choices_config:
 
 class Customer(models.Model):
     TIER_CHOICES = CHOICES["CUSTOMER"]["TIER_CHOICES"]
-
     id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
     phone = models.CharField(max_length=10, blank=True, null=True)
