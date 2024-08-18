@@ -1,9 +1,9 @@
 {
     "CUSTOMER": {
         "TIER_CHOICES": [
-            ["T1", "Cấp độ 1"],
-            ["T2", "Cấp độ 2"],
-            ["T3", "Cấp độ 3"]
+            ["tier 1", "Cấp độ 1"],
+            ["tier 2", "Cấp độ 2"],
+            ["tier 3", "Cấp độ 3"]
         ]
     },
     "PRODUCT": {
