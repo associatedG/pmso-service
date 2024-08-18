@@ -1,5 +1,5 @@
 from unicodedata import category
-
+from utils.choices_utils import *
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
@@ -8,6 +8,8 @@ from account.models import User
 import uuid
 import string
 import random
+
+CATEGORY_CHOICES = get_all_category_choices()
 
 #generate random name for Product
 def generate_random_string(category, length = 10):
@@ -18,7 +20,7 @@ def generate_random_string(category, length = 10):
 	return f"{category}-{random_string}"
 
 def mock_product_generator():
-	category = random.choice(["Phuy", "Thùng", "Cơ Khí Ô Tô"])
+	category = random.choice(CATEGORY_CHOICES)[1]
 	return {
 		"name": generate_random_string(category),
 		"category": category,

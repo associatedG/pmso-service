@@ -1,15 +1,16 @@
 from django.utils import timezone
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+from utils.choices_utils import *
 import uuid
 import json
 import os
 
-with open('config/choices_config.json') as choices_config:
-    CHOICES = json.load(choices_config)
+TIER_CHOICES = get_all_tier_choices()
+STATUS_CHOICES = get_all_status_choices()
+CATEGORY_CHOICES = get_all_category_choices()
 
 class Customer(models.Model):
-    TIER_CHOICES = CHOICES["CUSTOMER"]["TIER_CHOICES"]
 
     id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
@@ -30,7 +31,6 @@ class Customer(models.Model):
 
 
 class Product(models.Model):
-    CATEGORY_CHOICES = CHOICES["PRODUCT"]["CATEGORY_CHOICES"]
 
     id = models.UUIDField(
         primary_key=True,
@@ -52,7 +52,6 @@ class Product(models.Model):
 
 
 class ProductOrder(models.Model):
-    STATUS_CHOICES = CHOICES["PRODUCT_ORDER"]["STATUS_CHOICES"]
     OPEN = STATUS_CHOICES[0][0]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

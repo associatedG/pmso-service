@@ -23,7 +23,6 @@ class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     serializer_class = ProductOrderSerializer
     lookup_field = "id"
 
-#Customer View
 class CustomerListCreateView(generics.ListCreateAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
