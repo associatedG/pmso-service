@@ -143,7 +143,6 @@ class TestProductOrderView(APITestCase):
       self.assertEqual(response.status_code, status.HTTP_200_OK)
       response = self.client.get(reverse("product_order_detail", kwargs={"id": product_order['id']}))
       self.assertEqual(response.status_code, status.HTTP_200_OK)
-      # print(response)
 
     def test_get_a_list_of_historical_product_order_with_single_product(self):
         test_product_1 = Product.objects.create(**mock_product_generator())
@@ -165,11 +164,20 @@ class TestProductOrderView(APITestCase):
 
         response = self.client.post(reverse("product_order_list_create"), MOCK_PRODUCT_ORDER_ONE, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
         response = self.client.post(reverse("product_order_list_create"), MOCK_PRODUCT_ORDER_TWO, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         product_order = response.data
         response = self.client.patch(reverse("product_order_detail", kwargs={"id": product_order['id']}),
-                                     {'status': 'Cancelled'}, format='json')
+                                     {'status': 'Completed'}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get(reverse("product_order_list_create"))
+
+        response = self.client.post(reverse("product_order_list_create"), MOCK_PRODUCT_ORDER_THREE, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        product_order = response.data
+        response = self.client.patch(reverse("product_order_detail", kwargs={"id": product_order['id']}),
+                                     {'status': 'Completed'}, format= 'json')
+
+        response = self.client.get(reverse("product_order_list_create"), {'status': 'Completed'}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
