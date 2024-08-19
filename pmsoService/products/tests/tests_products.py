@@ -32,7 +32,6 @@ def mock_product_generator():
 	}
 
 class TestProductsViews(APITestCase):
-
 	@classmethod
 	def setUpTestData(self):
 		self.user = User.objects.create_user(username="user", password="test123")
@@ -41,7 +40,6 @@ class TestProductsViews(APITestCase):
 		self.product = mock_product_generator()
 		self.product_instance = Product.objects.create(**self.product)
 		self.urls_detail = reverse("product_detail", kwargs={"id": self.product_instance.id})
-
 
 	def test_create_product(self):
 		self.client.force_authenticate(user=self.user)

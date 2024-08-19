@@ -20,7 +20,7 @@ urlpatterns = [
         name='product_detail'
     ),
     path(
-        "product/orders/<uuid:id>/",
+        "products/orders/<uuid:id>/",
         ProductOrderRetrieveUpdateDestroyView.as_view(),
         name="product_order_detail",
     ),
