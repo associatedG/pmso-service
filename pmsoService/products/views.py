@@ -7,8 +7,6 @@ from .serializers import (
     CustomerSerializer,
 )
 
-
-#Product View
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -18,8 +16,6 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     serializer_class = ProductSerializer
     lookup_field = "id"
 
-
-# ProductOrder View
 class ProductOrderListCreateView(generics.ListCreateAPIView):
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
@@ -29,7 +25,6 @@ class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
     lookup_field = "id"
-
 
 class CustomerListCreateView(generics.ListCreateAPIView):
     queryset = Customer.objects.all()

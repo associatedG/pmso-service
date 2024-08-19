@@ -3,6 +3,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth import get_user_model
+from utils.choices_utils import *
 
 import uuid
 import string
@@ -10,6 +11,7 @@ import random
 from products.models import Product, ProductOrder, ProductOrderProduct
 
 User = get_user_model()
+STATUS_CHOICES = get_all_status_choices()
 
 
 def generate_random_string(length=10):
@@ -24,7 +26,7 @@ class TestProductOrderView(APITestCase):
         self.client = APIClient()
         self.product = Product.objects.create(
             name="Test Product",
-            category=Product.CATEGORY_TYPE_ONE,
+            category=STATUS_CHOICES[0][0],
             quantity=100,
             price=500.0
         )

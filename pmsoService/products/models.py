@@ -1,24 +1,20 @@
 from django.utils import timezone
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+from utils.choices_utils import *
 import uuid
+import json
+import os
 
+TIER_CHOICES = get_all_tier_choices()
+STATUS_CHOICES = get_all_status_choices()
+CATEGORY_CHOICES = get_all_category_choices()
 
 class Customer(models.Model):
-    TIER_1 = "tier 1"
-    TIER_2 = "tier 2"
-    TIER_3 = "tier 3"
-
-    TIER_CHOICES = [
-        (TIER_1, "Cấp độ 1"),
-        (TIER_2, "Cấp độ 2"),
-        (TIER_3, "Cấp độ 3"),
-    ]
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255, unique=True)
-    phone = models.CharField(max_length=10)
-    tier = models.CharField(max_length=50, choices=TIER_CHOICES, default=TIER_1)
+    id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True, blank=True, null=True)
+    phone = models.CharField(max_length=10, blank=True, null=True)
+    tier = models.CharField(max_length=50, choices=TIER_CHOICES)
     fax = models.IntegerField(blank=True, null=True)
     contact_list = models.JSONField(blank=True, null=True, default=dict)
     email = models.EmailField(max_length=255, blank=True, null=True)
@@ -27,9 +23,6 @@ class Customer(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ["name"]
         verbose_name = "Customer"
@@ -37,16 +30,6 @@ class Customer(models.Model):
 
 
 class Product(models.Model):
-    CATEGORY_TYPE_ONE = "Phuy"
-    CATEGORY_TYPE_TWO = "Thùng"
-    CATEGORY_TYPE_THREE = "Cơ Khí Ô Tô"
-
-    CATEGORY_CHOICES = [
-        (CATEGORY_TYPE_ONE, "Phuy"),
-        (CATEGORY_TYPE_TWO, "Thùng"),
-        (CATEGORY_TYPE_THREE, "Cơ Khí Ô Tô"),
-    ]
-
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -60,9 +43,6 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ["name"]
         verbose_name = "Product"
@@ -70,19 +50,7 @@ class Product(models.Model):
 
 
 class ProductOrder(models.Model):
-    OPEN = "Open"
-    PLANNING_PRODUCTION = "Planning Production"
-    IN_PRODUCTION = "In Production"
-    DELIVERING = "Delivering"
-    COMPLETED = "Completed"
-
-    STATUS_CHOICES = [
-        (OPEN, "Mở"),
-        (PLANNING_PRODUCTION, "Lên Kế Hoạch Sản Xuất"),
-        (IN_PRODUCTION, "Đang Sản Xuất"),
-        (DELIVERING, "Giao Hàng"),
-        (COMPLETED, "Hoàn Thành"),
-    ]
+    OPEN = STATUS_CHOICES[0][0]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
@@ -116,9 +84,6 @@ class ProductOrder(models.Model):
         related_name="delivery_orders",
     )
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         ordering = ["due_date"]
         verbose_name = "Product Order"
@@ -131,9 +96,6 @@ class ProductOrderProduct(models.Model):
     )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-
-    def __str__(self):
-        return f"{self.product_order.name} - {self.product.name}"
 
     class Meta:
         verbose_name = "Product Order Product"
