@@ -11,7 +11,6 @@ import random
 
 User = get_user_model()
 
-
 def generate_random_string(length=10):
     """Generate a random string of a given length."""
     letters = string.ascii_letters + string.digits
@@ -127,3 +126,50 @@ class TestProductOrderView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], str(product_order['id']))
         self.assertEqual(response.data['status'], product_order['status'])
+
+    def test_get_historical_product_order_with_single_product(self):
+      test_product_1 = Product.objects.create(**mock_product_generator())
+      self.client.force_authenticate(user=self.user)
+      product_ids = [test_product_1.id]
+      MOCK_PRODUCT_ORDER = mock_product_order_generator(self.staff.id,
+                                                        self.logistic.id,
+                                                        self.deliverer.id,
+                                                        mock_products_generator(product_ids))
+      response = self.client.post(reverse("product_order_list_create"), MOCK_PRODUCT_ORDER, format='json')
+      self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+      product_order = response.data
+      response = self.client.patch(reverse("product_order_detail", kwargs={"id": product_order['id']}),
+                                   {'status': 'Cancelled'}, format='json')
+      self.assertEqual(response.status_code, status.HTTP_200_OK)
+      response = self.client.get(reverse("product_order_detail", kwargs={"id": product_order['id']}))
+      self.assertEqual(response.status_code, status.HTTP_200_OK)
+      # print(response)
+
+    def test_get_a_list_of_historical_product_order_with_single_product(self):
+        test_product_1 = Product.objects.create(**mock_product_generator())
+        self.client.force_authenticate(user=self.user)
+        product_ids = [test_product_1.id]
+        MOCK_PRODUCT_ORDER_ONE = mock_product_order_generator(self.staff.id,
+                                                          self.logistic.id,
+                                                          self.deliverer.id,
+                                                          mock_products_generator(product_ids))
+        MOCK_PRODUCT_ORDER_TWO = mock_product_order_generator(self.staff.id,
+                                                          self.logistic.id,
+                                                          self.deliverer.id,
+                                                          mock_products_generator(product_ids))
+
+        MOCK_PRODUCT_ORDER_THREE = mock_product_order_generator(self.staff.id,
+                                                              self.logistic.id,
+                                                              self.deliverer.id,
+                                                              mock_products_generator(product_ids))
+
+        response = self.client.post(reverse("product_order_list_create"), MOCK_PRODUCT_ORDER_ONE, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(reverse("product_order_list_create"), MOCK_PRODUCT_ORDER_TWO, format='json')
+        product_order = response.data
+        response = self.client.patch(reverse("product_order_detail", kwargs={"id": product_order['id']}),
+                                     {'status': 'Cancelled'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(reverse("product_order_list_create"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
