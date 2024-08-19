@@ -14,6 +14,11 @@ urlpatterns = [
          name="product_list_create",
     ),
     path(
+        "products/<uuid:id>",
+        ProductRetrieveUpdateDestroyAPIView.as_view(),
+        name='product_detail'
+    ),
+    path(
         "products/orders/<uuid:id>/",
         ProductOrderRetrieveUpdateDestroyView.as_view(),
         name="product_order_detail",
