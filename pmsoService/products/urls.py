@@ -2,19 +2,25 @@ from django.urls import path
 from .views import (
     ProductOrderListCreateView,
     ProductOrderRetrieveUpdateDestroyView,
-    ProductListCreateView,
+    ProductListCreateAPIView,
+    ProductRetrieveUpdateDestroyAPIView,
     CustomerListCreateView,
     CustomerDetail,
 )
 
 urlpatterns = [
     path(
-        "products/",
-         ProductListCreateView.as_view(),
-         name="product_list_create",
+         "products/",
+         ProductListCreateAPIView.as_view(),
+         name='product_list_create'
     ),
     path(
-        "products/orders/<uuid:id>/",
+        "products/<uuid:id>",
+        ProductRetrieveUpdateDestroyAPIView.as_view(),
+        name='product_detail'
+    ),
+    path(
+        "product/orders/<uuid:id>/",
         ProductOrderRetrieveUpdateDestroyView.as_view(),
         name="product_order_detail",
     ),
