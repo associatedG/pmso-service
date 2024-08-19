@@ -1,0 +1,25 @@
+{
+    "CUSTOMER": {
+        "TIER_CHOICES": [
+            ["tier 1", "Cấp độ 1"],
+            ["tier 2", "Cấp độ 2"],
+            ["tier 3", "Cấp độ 3"]
+        ]
+    },
+    "PRODUCT": {
+        "CATEGORY_CHOICES": [
+            ["Phuy", "Phuy"],
+            ["Thùng", "Thùng"],
+            ["Cơ Khí Ô Tô", "Cơ Khí Ô Tô"]
+        ]
+    },
+    "PRODUCT_ORDER": {
+        "STATUS_CHOICES": [
+            ["Open", "Mở"],
+            ["Planning Production", "Lên Kế Hoạch Sản Xuất"],
+            ["In Production", "Đang Sản Xuất"],
+            ["Delivering", "Giao Hàng"],
+            ["Completed", "Hoàn Thành"]
+        ]
+    }
+}
