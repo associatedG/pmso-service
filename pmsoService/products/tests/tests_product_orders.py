@@ -1,3 +1,5 @@
+from http.client import responses
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
@@ -76,9 +78,9 @@ class TestProductOrderView(APITestCase):
         self.client.force_authenticate(user=self.user)
         
         product_ids = [test_product_1.id, test_product_2.id]
-        MOCK_PRODUCT_ORDER = mock_product_order_generator(self.staff.id, 
-                                                          self.logistic.id, 
-                                                          self.deliverer.id, 
+        MOCK_PRODUCT_ORDER = mock_product_order_generator(self.staff.id,
+                                                          self.logistic.id,
+                                                          self.deliverer.id,
                                                           mock_products_generator(product_ids))
 
         response = self.client.post(
@@ -86,3 +88,42 @@ class TestProductOrderView(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_get_product_order_with_single_product(self):
+      test_product_1 = Product.objects.create(**mock_product_generator())
+
+      self.client.force_authenticate(user=self.user)
+
+      product_ids = [test_product_1.id]
+      MOCK_PRODUCT_ORDER = mock_product_order_generator(self.staff.id,
+                                                        self.logistic.id,
+                                                        self.deliverer.id,
+                                                        mock_products_generator(product_ids))
+
+      response = self.client.post(
+        reverse("product_order_list_create"), MOCK_PRODUCT_ORDER, format='json'
+      )
+      product_order = response.data
+      response = self.client.get(reverse("product_order_detail", kwargs={"id": product_order['id']}))
+      self.assertEqual(response.status_code, status.HTTP_200_OK)
+      self.assertEqual(response.data['id'], str(product_order['id']))
+      self.assertEqual(response.data['status'], product_order['status'])
+
+    def test_get_product_order_with_multiple_products(self):
+        test_product_1 = Product.objects.create(**mock_product_generator())
+        test_product_2 = Product.objects.create(**mock_product_generator())
+        self.client.force_authenticate(user=self.user)
+        
+        product_ids = [test_product_1.id, test_product_2.id]
+        MOCK_PRODUCT_ORDER = mock_product_order_generator(self.staff.id,
+                                                          self.logistic.id,
+                                                          self.deliverer.id,
+                                                          mock_products_generator(product_ids))
+
+        response = self.client.post(
+            reverse("product_order_list_create"), MOCK_PRODUCT_ORDER, format='json'
+        )
+        product_order = response.data
+        response = self.client.get(reverse("product_order_detail", kwargs={"id": product_order['id']}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], str(product_order['id']))
+        self.assertEqual(response.data['status'], product_order['status'])

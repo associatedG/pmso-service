@@ -19,7 +19,8 @@
             ["Planning Production", "Lên Kế Hoạch Sản Xuất"],
             ["In Production", "Đang Sản Xuất"],
             ["Delivering", "Giao Hàng"],
-            ["Completed", "Hoàn Thành"]
+            ["Completed", "Hoàn Thành"],
+            ["Cancelled", "Cancelled"]
         ]
     }
 }

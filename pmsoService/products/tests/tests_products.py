@@ -1,3 +1,4 @@
+import dataclasses
 from unicodedata import category
 from utils.choices_utils import *
 from http.client import responses

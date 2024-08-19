@@ -37,19 +37,6 @@ class TestProductOrderView(APITestCase):
             sale_staff_id=self.user.id,
         )
 
-    def test_get_product_order(self):
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(reverse("product_order_detail", kwargs={"id": self.product_order.id}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['id'], str(self.product_order.id))
-        self.assertEqual(response.data['status'], self.product_order.status)
-
-    def test_get_non_existent_product_order(self):
-        self.client.force_authenticate(user=self.user)
-        non_existent_id = uuid.uuid4()
-        response = self.client.get(reverse("product_order_detail", kwargs={"id": non_existent_id}))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
     def test_create_product_order(self):
         self.client.force_authenticate(user=self.user)
         product_id = self.product.id
@@ -64,10 +51,23 @@ class TestProductOrderView(APITestCase):
             }]
         }
 
-        response = self.client.post(reverse("product_order_list_create"),  data, format="json")
+        response = self.client.post(reverse("product_order_list_create"), data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.product_order.refresh_from_db()
         self.assertEqual(self.product_order.status, "In Production")
+
+    def test_get_product_order(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(reverse("product_order_detail", kwargs={"id": self.product_order.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], str(self.product_order.id))
+        self.assertEqual(response.data['status'], self.product_order.status)
+
+    def test_get_non_existent_product_order(self):
+        self.client.force_authenticate(user=self.user)
+        non_existent_id = uuid.uuid4()
+        response = self.client.get(reverse("product_order_detail", kwargs={"id": non_existent_id}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_update_product_order(self):
         self.client.force_authenticate(user=self.user)
@@ -82,3 +82,18 @@ class TestProductOrderView(APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(reverse("product_order_detail", kwargs={"id": self.product_order.id}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_cancel_product_order(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(reverse("product_order_detail", kwargs={"id": self.product_order.id}),
+                                     {"status" : "Cancelled"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['status'], "Cancelled")
+
+    def test_cancel_already_canceled_product_order(self):
+        self.client.force_authenticate(user=self.user)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(reverse("product_order_detail", kwargs={"id": self.product_order.id}),
+                                     {"status": "Cancelled"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['status'], "Cancelled")

@@ -52,6 +52,7 @@ class Product(models.Model):
 class ProductOrder(models.Model):
     OPEN = STATUS_CHOICES[0][0]
 
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
     is_urgent = models.BooleanField(default=False)
