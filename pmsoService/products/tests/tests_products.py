@@ -70,9 +70,10 @@ class TestProductsViews(APITestCase):
 		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 	def test_list_product(self):
+		self.client.post(self.urls_create, mock_product_generator(), format="json")
 		response = self.client.get(self.urls_create)
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
-		self.assertEqual(response.data.get('count'), 1)
+		self.assertEqual(response.data.get('count'), 2)
 
 	def test_create_invalid_product(self):
 		invalid_product_quantity = mock_product_generator()

@@ -13,6 +13,9 @@ from .serializers import (
     CustomerSerializer,
 )
 
+class ProductPagination(PageNumberPagination):
+    page_size = '10'
+
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -20,7 +23,7 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
     search_fields = ['name']
     filterset_class = ProductFilter
     ordering_fields = ['name', 'quantity', 'price']
-    pagination_class = PageNumberPagination
+    pagination_class = ProductPagination
 
 class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
