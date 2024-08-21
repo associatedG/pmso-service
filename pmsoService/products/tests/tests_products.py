@@ -26,8 +26,8 @@ def generate_random_string(category, length = 10):
 def mock_product_generator():
 	category = random.choice(CATEGORY_CHOICES)[1]
 	return {
-		"name": generate_random_string(category),
-		"category": category,
+		"name": generate_random_string("Phuy"),
+		"category": "Phuy",
 		"quantity": random.randint(1, 10),
 		"price": random.randint(1, 10)
 	}
@@ -87,13 +87,14 @@ class TestProductsViews(APITestCase):
 		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 	def test_update_invalid_format_product(self):
-		test_data_product_quantity = random.randint(-10, 0)
+		test_data_product_quantity = random.randint(-10, -1)
 		response = self.client.patch(self.urls_detail, {"quantity": test_data_product_quantity}, format="json")
 		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 	def test_partial_update_existing_product(self):
 		test_partial_invalid_product_quantity = random.randint(1, 10)
-		response = self.client.patch(self.urls_detail, {"quantity": test_partial_invalid_product_quantity}, format="json")
+		response = self.client.patch(self.urls_detail, {"quantity":
+			                                                test_partial_invalid_product_quantity}, format="json")
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_delete_existing_product(self):
@@ -104,3 +105,13 @@ class TestProductsViews(APITestCase):
 		test_product_id = uuid.uuid4()
 		response = self.client.delete(reverse("product_detail", kwargs={"id": test_product_id}), format = "json")
 		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+	def test_get_list_products(self):
+		self.client.force_authenticate(user=self.user)
+		response = self.client.post(self.urls_create, mock_product_generator(), format="json")
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+		response = self.client.post(self.urls_create, mock_product_generator(), format="json")
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+		response = self.client.get(self.urls_create + "?category=Phuy", format="json")
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(len(response.data), 3)

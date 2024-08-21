@@ -1,6 +1,10 @@
-from rest_framework import status,generics
-from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status,generics
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+
+from .filters import ProductFilter
 from .models import Product, ProductOrder, ProductOrderProduct, Customer
 from .serializers import (
     ProductSerializer,
@@ -12,6 +16,11 @@ from .serializers import (
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = ['name']
+    filterset_class = ProductFilter
+    ordering_fields = ['name', 'quantity', 'price']
+    pagination_class = PageNumberPagination
 
 class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
@@ -26,17 +35,6 @@ class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
     lookup_field = "id"
-
-    def get(self, request, *args, **kwargs):
-        instance = self.get_object()
-
-        if instance.status in ['Cancelled', 'Completed']:
-            queryset = ProductOrder.objects.all().filter(status__in=['Cancelled', 'Completed'])
-            serializer = ProductOrderSerializer(queryset, many=True)
-            return Response(serializer.data)
-
-        serializer = ProductOrderSerializer(instance)
-        return Response(serializer.data)
 
 class CustomerListCreateView(generics.ListCreateAPIView):
     queryset = Customer.objects.all()

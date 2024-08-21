@@ -38,6 +38,7 @@ class ProductOrderSerializer(serializers.ModelSerializer):
         model = ProductOrder
         fields = [
             "id",
+            "name",
             "is_urgent",
             "due_date",
             "status",
