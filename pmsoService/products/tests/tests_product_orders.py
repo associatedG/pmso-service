@@ -31,7 +31,7 @@ def mock_product_generator():
 def mock_product_order_generator(staff_id, logistic_id, deliverer_id, products):
     """Generate mock user based on role"""
     return {
-            "is_urgent": True,
+            "is_urgent": random.choice([True, False]),
             "due_date": "2024-08-11",
             "sale_staff": staff_id,
             "logistic_staff": logistic_id,

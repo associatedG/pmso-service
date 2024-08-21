@@ -87,7 +87,7 @@ class TestProductsViews(APITestCase):
 		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 	def test_update_invalid_format_product(self):
-		test_data_product_quantity = random.randint(-10, 0)
+		test_data_product_quantity = random.randint(-10, -1)
 		response = self.client.patch(self.urls_detail, {"quantity": test_data_product_quantity}, format="json")
 		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
