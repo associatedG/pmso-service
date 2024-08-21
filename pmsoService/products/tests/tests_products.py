@@ -9,6 +9,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from products.models import Product
 from account.models import User
+from products.serializers import ProductSerializer
+
 import uuid
 import string
 import random
@@ -23,51 +25,62 @@ def generate_random_string(category, length = 10):
 	random_string = "".join(random.choice(letters) for _ in range(length))
 	return f"{category}-{random_string}"
 
-def mock_product_generator():
-	category = random.choice(CATEGORY_CHOICES)[1]
+def mock_product_generator(category = None):
+	if category is None:
+		category = random.choice(CATEGORY_CHOICES)[1]
 	return {
-		"name": generate_random_string("Phuy"),
-		"category": "Phuy",
+		"name": generate_random_string(category),
+		"category": category,
 		"quantity": random.randint(1, 10),
 		"price": random.randint(1, 10)
 	}
 
 class TestProductsViews(APITestCase):
+
 	@classmethod
 	def setUpTestData(self):
 		self.user = User.objects.create_user(username="user", password="test123")
 		self.client = APIClient()
+		self.client.force_authenticate(user=self.user)
 		self.urls_create = reverse("product_list_create")
 		self.product = mock_product_generator()
 		self.product_instance = Product.objects.create(**self.product)
 		self.urls_detail = reverse("product_detail", kwargs={"id": self.product_instance.id})
 
+	def create_products(self, category, count):
+		for _ in range(count):
+			response = self.client.post(self.urls_create, mock_product_generator(category), format="json")
+			self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+	def check_ordering(self, ordering_field):
+		response = self.client.get(self.urls_create + f"?ordering={ordering_field}", format="json")
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+		sorted_products = Product.objects.all().order_by(ordering_field)
+		expected_data = ProductSerializer(sorted_products, many=True).data
+		self.assertEqual(response.data.get('results'), expected_data)
+
 	def test_create_product(self):
-		self.client.force_authenticate(user=self.user)
 		test_product = mock_product_generator()
 		response = self.client.post( self.urls_create, test_product, format="json")
 		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 	def test_create_existing_product(self):
-		self.client.force_authenticate(user=self.user)
 		response = self.client.post( self.urls_create, self.product, format="json")
 		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 	def test_list_product(self):
-		self.client.force_authenticate(user=self.user)
 		response = self.client.get(self.urls_create)
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertEqual(response.data.get('count'), 1)
 
 	def test_create_invalid_product(self):
-		self.client.force_authenticate(user=self.user)
-		test_create_invalid_product_quantity = mock_product_generator()
-		test_create_invalid_product_quantity.update(quantity = -10)
-		response = self.client.post( self.urls_create, test_create_invalid_product_quantity, format="json")
+		invalid_product_quantity = mock_product_generator()
+		invalid_product_quantity.update(quantity = -10)
+		response = self.client.post( self.urls_create, invalid_product_quantity, format="json")
 		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 	def test_get_existing_product(self):
-		self.client.force_authenticate(user=self.user)
 		response = self.client.get(self.urls_detail)
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 		self.assertEqual(response.data["name"], self.product["name"])
@@ -76,25 +89,25 @@ class TestProductsViews(APITestCase):
 		self.assertEqual(response.data["price"], self.product["price"])
 
 	def test_get_non_existing_product(self):
-		test_product_id = uuid.uuid4()
-		response = self.client.get(reverse("product_detail", kwargs={"id": test_product_id}))
+		test_invalid_product_id = uuid.uuid4()
+		response = self.client.get(reverse("product_detail", kwargs={"id": test_invalid_product_id}))
 		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 	def test_update_non_existing_product(self):
-		test_product_id = uuid.uuid4()
-		test_new_product = mock_product_generator()
-		response = self.client.patch(reverse("product_detail", kwargs={"id": test_product_id}), test_new_product, format="json")
+		test_invalid_product_id = uuid.uuid4()
+		new_product = mock_product_generator()
+		response = self.client.patch(reverse("product_detail", kwargs={"id": test_invalid_product_id}), new_product, format="json")
 		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 	def test_update_invalid_format_product(self):
-		test_data_product_quantity = random.randint(-10, -1)
-		response = self.client.patch(self.urls_detail, {"quantity": test_data_product_quantity}, format="json")
+		test_invalid_product_quantity = random.randint(-10, -1)
+		response = self.client.patch(self.urls_detail, {"quantity": test_invalid_product_quantity}, format="json")
 		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 	def test_partial_update_existing_product(self):
-		test_partial_invalid_product_quantity = random.randint(1, 10)
+		test_invalid_product_quantity = random.randint(1, 10)
 		response = self.client.patch(self.urls_detail, {"quantity":
-			                                                test_partial_invalid_product_quantity}, format="json")
+			                                                test_invalid_product_quantity}, format="json")
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 	def test_delete_existing_product(self):
@@ -102,16 +115,65 @@ class TestProductsViews(APITestCase):
 		self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 	def test_delete_non_existing_product(self):
-		test_product_id = uuid.uuid4()
-		response = self.client.delete(reverse("product_detail", kwargs={"id": test_product_id}), format = "json")
+		test_invalid_product_id = uuid.uuid4()
+		response = self.client.delete(reverse("product_detail", kwargs={"id": test_invalid_product_id}), format = "json")
 		self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-	def test_get_list_products(self):
-		self.client.force_authenticate(user=self.user)
-		response = self.client.post(self.urls_create, mock_product_generator(), format="json")
-		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-		response = self.client.post(self.urls_create, mock_product_generator(), format="json")
-		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-		response = self.client.get(self.urls_create + "?category=Phuy", format="json")
+	def test_filter_category(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+
+		response = self.client.get(self.urls_create + f"?category={test_category}", format="json")
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
-		self.assertEqual(response.data.get('count'), 3)
+		self.assertEqual(response.data.get('count'), 4)
+
+	def test_invalid_filter_category(self):
+		invalid_category = "Thung1"
+		response = self.client.get(self.urls_create + f"?category={invalid_category}", format="json")
+		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+	def test_sort_name_by_name_ascending(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+		self.check_ordering("name")
+
+	def test_sort_name_by_name_descending(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+		self.check_ordering("-name")
+
+	def test_sort_name_by_price_ascending(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+		self.check_ordering("price")
+
+	def test_sort_name_by_price_descending(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+		self.check_ordering("-price")
+
+	def test_sort_name_by_quantity_ascending(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+		self.check_ordering("quantity")
+
+	def test_sort_name_by_quantity_descending(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+		self.check_ordering("-quantity")
+
+	def test_pagination(self):
+		test_category = self.product["category"]
+		page_size = 10
+		self.create_products(test_category, 11)
+
+		response = self.client.get(self.urls_create + f"?page=1", format="json")
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+		self.assertEqual(response.data.get('count'), 12)
+		self.assertIsNotNone(response.data.get('next'))
+		self.assertIsNone(response.data.get('previous'))
+
+		sorted_products = Product.objects.all()[:page_size]
+		expected_data = ProductSerializer(sorted_products, many=True).data
+		self.assertEqual(response.data.get('results'), expected_data)
