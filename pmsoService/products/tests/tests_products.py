@@ -57,7 +57,7 @@ class TestProductsViews(APITestCase):
 		self.client.force_authenticate(user=self.user)
 		response = self.client.get(self.urls_create)
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
-		self.assertEqual(len(response.data), 1)
+		self.assertEqual(response.data.get('count'), 1)
 
 	def test_create_invalid_product(self):
 		self.client.force_authenticate(user=self.user)
@@ -114,4 +114,4 @@ class TestProductsViews(APITestCase):
 		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 		response = self.client.get(self.urls_create + "?category=Phuy", format="json")
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
-		self.assertEqual(len(response.data), 3)
+		self.assertEqual(response.data.get('count'), 3)
