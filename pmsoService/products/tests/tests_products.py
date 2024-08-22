@@ -178,6 +178,16 @@ class TestProductsViews(APITestCase):
 		self.create_products(test_category, 3)
 		self.check_ordering("-quantity")
 
+	def test_sort_name_by_is_active_ascending(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+		self.check_ordering("is_active")
+
+	def test_sort_name_by_is_active_descending(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+		self.check_ordering("-is_active")
+
 	def test_pagination(self):
 		test_category = self.product["category"]
 		page_size = 10
