@@ -53,6 +53,9 @@ class TestProductOrderView(APITestCase):
         self.deliverer = User.objects.create_user(username="deliverer", password="test123")
         self.client = APIClient()
 
+    def create_products(self):
+
+
     def test_create_product_order_with_single_product(self):
         test_product_1 = Product.objects.create(**mock_product_generator())
         self.client.force_authenticate(user=self.user)
