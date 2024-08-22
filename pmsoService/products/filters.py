@@ -6,5 +6,6 @@ class ProductFilter(FilterSet):
 		model = Product
 
 		fields = {
-			'category': ['exact'],
+			"category": ["exact"],
+			"is_active": ["exact"],
 		}
