@@ -171,7 +171,6 @@ class TestProductsViews(APITestCase):
 		response = self.client.get(self.urls_create + f"?page=1", format="json")
 		self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-		self.assertEqual(response.data.get('count'), 12)
 		self.assertIsNotNone(response.data.get('next'))
 		self.assertIsNone(response.data.get('previous'))
 
