@@ -1,5 +1,5 @@
 from django_filters.rest_framework import FilterSet
-from products.models import ProductOrder
+from products.models import ProductOrder, Product
 
 class ProductOrderFilter(FilterSet):
 	class Meta:
@@ -9,4 +9,12 @@ class ProductOrderFilter(FilterSet):
 			'is_urgent': ['exact'],
 			'due_date': ['gte', 'lte', 'exact'],
 			'status': ['exact'],
+		}
+
+class ProductFilter(FilterSet):
+	class Meta:
+		model = Product
+
+		fields = {
+			'category': ['exact'],
 		}

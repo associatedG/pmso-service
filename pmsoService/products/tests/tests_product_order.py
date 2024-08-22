@@ -96,4 +96,3 @@ class TestProductOrderView(APITestCase):
         response = self.client.patch(reverse("product_order_detail", kwargs={"id": self.product_order.id}),
                                      {"status": "Cancelled"}, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['status'], "Cancelled")

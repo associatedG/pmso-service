@@ -38,13 +38,17 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "drf_yasg",
-    "django_filters",
     "rest_framework",
     "corsheaders",
+    'django_filters',
     "account",
     "phonenumber_field",
     "products",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+}
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
