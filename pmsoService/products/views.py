@@ -16,8 +16,8 @@ from .serializers import (
 class ProductPagination(PageNumberPagination):
     page_size = '10'
 
-class ProductListCreateAPIView(generics.ListCreateAPIView):
-    """
+
+"""
         GET: /api/products/?category=Phuy&ordering=quantity
         {
             "count": 3,
@@ -54,7 +54,8 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
             "quantity": null,
             "price": null
         }
-        """
+"""
+class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
