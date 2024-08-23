@@ -5,19 +5,15 @@ from .views import (
     ProductListCreateAPIView,
     ProductRetrieveUpdateDestroyAPIView,
     CustomerListCreateView,
-    CustomerDetail,
+    CustomerRetrieveUpdateDestroyView,
 )
 
 urlpatterns = [
-    path(
-         "products/",
-         ProductListCreateAPIView.as_view(),
-         name='product_list_create'
-    ),
+    path("products/", ProductListCreateAPIView.as_view(), name="product_list_create"),
     path(
         "products/<uuid:id>",
         ProductRetrieveUpdateDestroyAPIView.as_view(),
-        name='product_detail'
+        name="product_detail",
     ),
     path(
         "products/orders/<uuid:id>/",
@@ -36,7 +32,7 @@ urlpatterns = [
     ),
     path(
         "customers/<uuid:id>/",
-        CustomerDetail.as_view(),
-        name="customer_detail_update_destroy",
+        CustomerRetrieveUpdateDestroyView.as_view(),
+        name="customer_detail",
     ),
 ]
