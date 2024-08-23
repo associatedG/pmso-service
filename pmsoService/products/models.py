@@ -12,7 +12,7 @@ CATEGORY_CHOICES = get_all_category_choices()
 
 class Customer(models.Model):
     id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255, unique=True, blank=True, null=True)
+    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
     phone = models.CharField(max_length=10, blank=True, null=True)
     tier = models.CharField(max_length=50, choices=TIER_CHOICES)
     fax = models.IntegerField(blank=True, null=True)
@@ -36,7 +36,7 @@ class Product(models.Model):
         editable=False,
     )
     is_active = models.BooleanField(default=True)
-    name = models.CharField(max_length=255, unique=True, blank=True, null=True)
+    name = models.CharField(max_length=255, unique=True, blank=False, null=False)
     category = models.CharField(
         max_length=255,
         choices=CATEGORY_CHOICES,
