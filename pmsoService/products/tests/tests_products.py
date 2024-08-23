@@ -30,6 +30,7 @@ def mock_product_generator(category = None):
 		category = random.choice(CATEGORY_CHOICES)[1]
 	return {
 		"name": generate_random_string(category),
+		"is_active": random.choice([True, False]),
 		"category": category,
 		"quantity": random.randint(1, 10),
 		"price": random.randint(1, 10)
@@ -133,6 +134,20 @@ class TestProductsViews(APITestCase):
 		response = self.client.get(self.urls_create + f"?category={invalid_category}", format="json")
 		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+	def test_filter_is_active(self):
+		test_category = self.product["category"]
+		test_is_active = True
+		self.create_products(test_category, 4)
+		response = self.client.get(self.urls_create +
+		                           f"?category={test_category}&is_active={test_is_active}", format="json")
+
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+		filtered_products = Product.objects.all().filter(is_active=test_is_active)
+		expected_data = ProductSerializer(filtered_products, many=True).data
+
+		self.assertEqual(response.data.get('results'), expected_data)
+
 	def test_sort_name_by_name_ascending(self):
 		test_category = self.product["category"]
 		self.create_products(test_category, 3)
@@ -162,6 +177,16 @@ class TestProductsViews(APITestCase):
 		test_category = self.product["category"]
 		self.create_products(test_category, 3)
 		self.check_ordering("-quantity")
+
+	def test_sort_name_by_is_active_ascending(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+		self.check_ordering("is_active")
+
+	def test_sort_name_by_is_active_descending(self):
+		test_category = self.product["category"]
+		self.create_products(test_category, 3)
+		self.check_ordering("-is_active")
 
 	def test_pagination(self):
 		test_category = self.product["category"]
