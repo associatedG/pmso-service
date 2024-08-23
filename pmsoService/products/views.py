@@ -120,23 +120,20 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     }
     POST:
     {
-       "is_urgent": false,
-        "due_date": null,
-        "status": null,
-        "customer": null,
-        "sale_staff": null,
-        "logistic_staff": null,
-        "deliverer": null,
-        "created_at": null,
-        "products": [{
-            "product": {
-                "id": "b516c4f1-7be0-4372-848c-9fb08c858a7d",
-                "name": "Test Bon Xitec",
-                "category": "Cơ Khí Ô Tô",
-                "quantity": 7,
-                "price": 5
+        "is_urgent": true,
+        "due_date": "2025-08-23",
+        "status": "Open",
+        "customer": "d3e047a3-a71a-4d03-86a1-43914455ac18",
+        "sale_staff": "fd66f621-1f79-45c8-bd89-c0c5ac11b2d8",
+        "logistic_staff": "fd66f621-1f79-45c8-bd89-c0c5ac11b2d8",
+        "deliverer": "fd66f621-1f79-45c8-bd89-c0c5ac11b2d8",
+        "created_at": "2024-08-24T17:00",
+        "products": [
+            {
+                "product_id": "3692d8f6-4e19-4ac4-add8-f06a8939164d",
+                "quantity": 2
             }
-        }]
+        ]
     }
 """
 
