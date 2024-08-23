@@ -204,3 +204,49 @@ class TestProductOrderView(APITestCase):
       expected_data = ProductOrderSerializer(product_orders_object, many=True).data
 
       self.assertEqual(response.data.get('results'), expected_data)
+
+    def test_get_non_existent_product_order(self):
+        self.client.force_authenticate(user=self.user)
+        non_existent_id = uuid.uuid4()
+        response = self.client.get(reverse("product_order_detail", kwargs={"id": non_existent_id}))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_product_order(self):
+      num_products = random.randint(1, 5)
+      product_order = self.create_and_post_product_order(num_products)
+      product_order_id = product_order.data["id"]
+
+      response = self.client.patch(
+          reverse("product_order_detail", kwargs={"id": product_order_id}),
+          {"status": "Delivering"},
+          format="json"
+      )
+      self.assertEqual(response.status_code, status.HTTP_200_OK)
+      self.assertEqual(response.data['status'], "Delivering")
+
+    def test_delete_product_order(self):
+      num_products = random.randint(1, 5)
+      product_order = self.create_and_post_product_order(num_products)
+      product_order_id = product_order.data["id"]
+
+      response = self.client.delete(reverse("product_order_detail", kwargs={"id": product_order_id}))
+      self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_cancel_product_order(self):
+      num_products = random.randint(1, 5)
+      product_order = self.create_and_post_product_order(num_products)
+      product_order_id = product_order.data["id"]
+
+      response = self.client.patch(reverse("product_order_detail", kwargs={"id": product_order_id}),
+                                     {"status" : "Cancelled"}, format="json")
+      self.assertEqual(response.status_code, status.HTTP_200_OK)
+      self.assertEqual(response.data['status'], "Cancelled")
+
+    def test_cancel_already_canceled_product_order(self):
+      num_products = random.randint(1, 5)
+      product_order = self.create_and_post_product_order(num_products)
+      product_order_id = product_order.data["id"]
+
+      response = self.client.patch(reverse("product_order_detail", kwargs={"id": product_order_id}),
+                                     {"status": "Cancelled"}, format="json")
+      self.assertEqual(response.status_code, status.HTTP_200_OK)
