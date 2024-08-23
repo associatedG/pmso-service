@@ -35,6 +35,7 @@ class Product(models.Model):
         default=uuid.uuid4,
         editable=False,
     )
+    is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)
     category = models.CharField(
         max_length=255,
@@ -51,7 +52,6 @@ class Product(models.Model):
 
 class ProductOrder(models.Model):
     OPEN = STATUS_CHOICES[0][0]
-
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, blank=True, null=True)

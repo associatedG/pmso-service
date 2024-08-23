@@ -28,6 +28,7 @@ class ProductPagination(PageNumberPagination):
                 {
                     "id": "094df9db-15ab-47fe-9b25-159418db7e26",
                     "name": "Test Phuy 2",
+                    "is_active": False,
                     "category": "Phuy",
                     "quantity": 2,
                     "price": 1
@@ -35,6 +36,7 @@ class ProductPagination(PageNumberPagination):
                 {
                     "id": "f1d30788-7c2e-45d1-b033-ef734c54d98a",
                     "name": "Test Phuy 3",
+                    "is_active": True,
                     "category": "Phuy",
                     "quantity": 2,
                     "price": 1
@@ -42,6 +44,7 @@ class ProductPagination(PageNumberPagination):
                 {
                     "id": "8cd1f3bc-bd2e-4fbc-963f-2f4b0e2b35de",
                     "name": "Test Phuy 1",
+                    "is_active": True,
                     "category": "Phuy",
                     "quantity": 5,
                     "price": 5
@@ -50,6 +53,7 @@ class ProductPagination(PageNumberPagination):
         }
         POST:
         {
+            "is_active": True,
             "name": "",
             "category": null,
             "quantity": null,
@@ -61,9 +65,9 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    search_fields = ['name']
+    search_fields = ["name"]
     filterset_class = ProductFilter
-    ordering_fields = ['name', 'quantity', 'price']
+    ordering_fields = ["is_active", "name", "quantity", "price"]
     pagination_class = ProductPagination
 
 class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
