@@ -51,9 +51,7 @@ class CustomerDetailTest(APITestCase):
         cls.client.force_authenticate(user=cls.user)
         cls.customer_data = generate_customer_data()
         cls.customer = Customer.objects.create(**cls.customer_data)
-        cls.url = reverse(
-            "customer_detail_update_destroy", kwargs={"id": cls.customer.id}
-        )
+        cls.url = reverse("customer_detail", kwargs={"id": cls.customer.id})
 
     def test_retrieve_existed_customer(self):
         response = self.client.get(self.url, format="json")
@@ -71,7 +69,7 @@ class CustomerDetailTest(APITestCase):
 
     def test_retrieve_not_existed_customer(self):
         non_existent_id = uuid.uuid4()  # An ID that does not exist
-        url = reverse("customer_detail_update_destroy", kwargs={"id": non_existent_id})
+        url = reverse("customer_detail", kwargs={"id": non_existent_id})
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -92,7 +90,7 @@ class CustomerDetailTest(APITestCase):
 
     def test_update_not_existed_customer(self):
         non_existent_id = uuid.uuid4()
-        url = reverse("customer_detail_update_destroy", kwargs={"id": non_existent_id})
+        url = reverse("customer_detail", kwargs={"id": non_existent_id})
         new_customer_data = generate_customer_data()
         response = self.client.patch(url, new_customer_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -110,7 +108,7 @@ class CustomerDetailTest(APITestCase):
 
     def test_delete_non_existed_customer(self):
         non_existent_id = uuid.uuid4()
-        url = reverse("customer_detail_update_destroy", kwargs={"id": non_existent_id})
+        url = reverse("customer_detail", kwargs={"id": non_existent_id})
         response = self.client.delete(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -132,15 +130,24 @@ class CustomerListCreateViewTest(APITestCase):
             username="testuser", password="testpassword"
         )
         cls.client.force_authenticate(user=cls.user)
-        cls.customer_data = generate_customer_data()
-        cls.customer = Customer.objects.create(**cls.customer_data)
+        cls.customers = [
+            Customer.objects.create(
+                **generate_customer_data(name="Alice", tier="tier 1")
+            ),
+            Customer.objects.create(
+                **generate_customer_data(name="Bob", tier="tier 2")
+            ),
+            Customer.objects.create(
+                **generate_customer_data(name="Charlie", tier="tier 1")
+            ),
+        ]
         cls.url = reverse("customer_list_create")
 
     def test_create_customer(self):
         test_customer = generate_customer_data()
         response = self.client.post(self.url, test_customer, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Customer.objects.count(), 2)
+        self.assertEqual(Customer.objects.count(), 4)
         created_customer = Customer.objects.get(name=test_customer["name"])
         self.assertEqual(created_customer.name, response.data["name"])
 
@@ -159,7 +166,7 @@ class CustomerListCreateViewTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_existed_customer(self):
-        existing_customer = generate_customer_data(name=self.customer.name)
+        existing_customer = generate_customer_data(name=self.customers[0].name)
         response = self.client.post(self.url, existing_customer, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -176,5 +183,73 @@ class CustomerListCreateViewTest(APITestCase):
     def test_list_customers(self):
         response = self.client.get(self.url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["name"], self.customer.name)
+        self.assertEqual(response.data.get("count"), 3)
+        customer_names = [customer["name"] for customer in response.data["results"]]
+        expected_names = ["Alice", "Bob", "Charlie"]
+        self.assertCountEqual(customer_names, expected_names)
+
+    def test_filter_customers_by_tier(self):
+        response = self.client.get(self.url, {"tier": "tier 1"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 2)
+        for customer in response.data["results"]:
+            self.assertEqual(customer["tier"], "tier 1")
+
+    def test_search_customers_by_name(self):
+        response = self.client.get(self.url, {"search": "Alice"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 1)
+        self.assertEqual(response.data["results"][0]["name"], "Alice")
+
+    def test_sort_customers_by_name_ascending(self):
+        response = self.client.get(self.url, {"ordering": "name"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        sorted_names = sorted(
+            [customer["name"] for customer in response.data["results"]]
+        )
+        response_names = [customer["name"] for customer in response.data["results"]]
+        self.assertEqual(sorted_names, response_names)
+
+    def test_sort_customers_by_name_descending(self):
+        response = self.client.get(self.url, {"ordering": "-name"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        sorted_names = sorted(
+            [customer["name"] for customer in response.data["results"]], reverse=True
+        )
+        response_names = [customer["name"] for customer in response.data["results"]]
+        self.assertEqual(sorted_names, response_names)
+
+    def test_pagination(self):
+        response = self.client.get(self.url, {"page": 1}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 3)
+
+    def test_pagination_with_page_size_param(self):
+        response = self.client.get(self.url, {"page": 1, "page_size": 2}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 2)
+
+    def test_pagination_beyond_available_pages(self):
+        response = self.client.get(self.url, {"page": 999}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_filter_and_search_customers(self):
+        response = self.client.get(
+            self.url, {"tier": "tier 2", "search": "Bob"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 1)
+        self.assertEqual(response.data["results"][0]["name"], "Bob")
+        self.assertEqual(response.data["results"][0]["tier"], "tier 2")
+
+    def test_empty_search_results(self):
+        response = self.client.get(
+            self.url, {"search": "NonExistentName"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 0)
+        self.assertEqual(len(response.data["results"]), 0)
+
+    def test_invalid_filter(self):
+        response = self.client.get(self.url, {"tier": "invalid_tier"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
