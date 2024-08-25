@@ -141,7 +141,12 @@ class CustomerListCreateViewTest(APITestCase):
                 **generate_customer_data(name="Charlie", tier="tier 1")
             ),
         ]
+        cls.customers_count = len(cls.customers)
         cls.url = reverse("customer_list_create")
+
+    def add_bulk_customers(self, count):
+        for _ in range(count):
+            Customer.objects.create(**generate_customer_data())
 
     def test_create_customer(self):
         test_customer = generate_customer_data()
@@ -219,10 +224,25 @@ class CustomerListCreateViewTest(APITestCase):
         response_names = [customer["name"] for customer in response.data["results"]]
         self.assertEqual(sorted_names, response_names)
 
-    def test_pagination(self):
+    def test_pagination_first_page(self):
+        additional_customers = random.randint(9, 17)
+        self.add_bulk_customers(additional_customers)
         response = self.client.get(self.url, {"page": 1}, format="json")
+        # print(response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["results"]), 3)
+        self.assertEqual(len(response.data["results"]), 10)
+        self.assertIsNotNone(response.data["next"])
+
+    def test_pagination_second_page(self):
+        additional_customers = random.randint(9, 17)
+        self.add_bulk_customers(additional_customers)
+        response = self.client.get(self.url, {"page": 2}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            len(response.data["results"]),
+            self.customers_count + additional_customers - 10,
+        )
+        self.assertIsNotNone(response.data["previous"])
 
     def test_pagination_with_page_size_param(self):
         response = self.client.get(self.url, {"page": 1, "page_size": 2}, format="json")

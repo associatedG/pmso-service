@@ -40,14 +40,14 @@ INSTALLED_APPS = [
     "drf_yasg",
     "rest_framework",
     "corsheaders",
-    'django_filters',
+    "django_filters",
     "account",
     "phonenumber_field",
     "products",
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 MIDDLEWARE = [
@@ -62,12 +62,10 @@ MIDDLEWARE = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000"
-]
+CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 
 ROOT_URLCONF = "pmsoService.urls"
 
@@ -87,7 +85,7 @@ TEMPLATES = [
     },
 ]
 
-STATIC_ROOT = BASE_DIR/'staticfiles'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 WSGI_APPLICATION = "pmsoService.wsgi.application"
 

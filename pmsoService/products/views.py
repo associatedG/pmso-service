@@ -7,9 +7,7 @@ from .filters import ProductOrderFilter, ProductFilter, CustomerFilter
 from .models import Product, ProductOrder, Customer
 from .serializers import ProductSerializer, ProductOrderSerializer, CustomerSerializer
 
-
-class ProductListCreateAPIView(generics.ListCreateAPIView):
-    """
+"""
     GET: /api/products/?category=Phuy&ordering=quantity
     {
         "count": 3,
@@ -50,8 +48,10 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
         "quantity": null,
         "price": null
     }
-    """
+"""
 
+
+class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -67,8 +67,7 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     lookup_field = "id"
 
 
-class ProductOrderListCreateView(generics.ListCreateAPIView):
-    """
+"""
     GET: /api/products/orders?is_urgent=true&due_date__gte=&due_date__lte=&due_date=2024-08-31&status=Open
     {
         "count": 1,
@@ -128,8 +127,10 @@ class ProductOrderListCreateView(generics.ListCreateAPIView):
             }
         ]
     }
-    """
+"""
 
+
+class ProductOrderListCreateView(generics.ListCreateAPIView):
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -145,8 +146,7 @@ class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     lookup_field = "id"
 
 
-class CustomerListCreateView(generics.ListCreateAPIView):
-    """
+""" Customer List Create View API
     get:
     Return a list of all customers with pagination, filtering, and ordering options.
 
@@ -196,8 +196,10 @@ class CustomerListCreateView(generics.ListCreateAPIView):
             }
         ]
     }
-    """
+"""
 
+
+class CustomerListCreateView(generics.ListCreateAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
@@ -207,8 +209,7 @@ class CustomerListCreateView(generics.ListCreateAPIView):
     pagination_class = CustomerPagination
 
 
-class CustomerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    """
+""" Customer Retrieve Update Destroy View API
     get:
     Retrieve a customer by ID.
 
@@ -241,8 +242,10 @@ class CustomerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         "address": "123 Nguyen Chi Thanh",
         "note": "Test customer note"
     }
-    """
+"""
 
+
+class CustomerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     lookup_field = "id"
