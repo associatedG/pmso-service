@@ -1,65 +1,55 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
-from rest_framework.pagination import PageNumberPagination
-from rest_framework import status,generics
-from rest_framework.response import Response
+from rest_framework import generics
 
-from .filters import ProductOrderFilter, ProductFilter
-from .models import Product, ProductOrder, ProductOrderProduct, Customer
-from .serializers import (
-    ProductSerializer,
-    ProductOrderSerializer,
-    CustomerSerializer,
-)
-
-class ProductOrderPagination(PageNumberPagination):
-    page_size = "10"
-
-class ProductPagination(PageNumberPagination):
-    page_size = '10'
+from .paginations import ProductOrderPagination, ProductPagination, CustomerPagination
+from .filters import ProductOrderFilter, ProductFilter, CustomerFilter
+from .models import Product, ProductOrder, Customer
+from .serializers import ProductSerializer, ProductOrderSerializer, CustomerSerializer
 
 """
-        GET: /api/products/?category=Phuy&ordering=quantity
-        {
-            "count": 3,
-            "next": null,
-            "previous": null,
-            "results": [
-                {
-                    "id": "094df9db-15ab-47fe-9b25-159418db7e26",
-                    "name": "Test Phuy 2",
-                    "is_active": False,
-                    "category": "Phuy",
-                    "quantity": 2,
-                    "price": 1
-                },
-                {
-                    "id": "f1d30788-7c2e-45d1-b033-ef734c54d98a",
-                    "name": "Test Phuy 3",
-                    "is_active": True,
-                    "category": "Phuy",
-                    "quantity": 2,
-                    "price": 1
-                },
-                {
-                    "id": "8cd1f3bc-bd2e-4fbc-963f-2f4b0e2b35de",
-                    "name": "Test Phuy 1",
-                    "is_active": True,
-                    "category": "Phuy",
-                    "quantity": 5,
-                    "price": 5
-                }
-            ]
-        }
-        POST:
-        {
-            "is_active": True,
-            "name": "",
-            "category": null,
-            "quantity": null,
-            "price": null
-        }
+    GET: /api/products/?category=Phuy&ordering=quantity
+    {
+        "count": 3,
+        "next": null,
+        "previous": null,
+        "results": [
+            {
+                "id": "094df9db-15ab-47fe-9b25-159418db7e26",
+                "name": "Test Phuy 2",
+                "is_active": False,
+                "category": "Phuy",
+                "quantity": 2,
+                "price": 1
+            },
+            {
+                "id": "f1d30788-7c2e-45d1-b033-ef734c54d98a",
+                "name": "Test Phuy 3",
+                "is_active": True,
+                "category": "Phuy",
+                "quantity": 2,
+                "price": 1
+            },
+            {
+                "id": "8cd1f3bc-bd2e-4fbc-963f-2f4b0e2b35de",
+                "name": "Test Phuy 1",
+                "is_active": True,
+                "category": "Phuy",
+                "quantity": 5,
+                "price": 5
+            }
+        ]
+    }
+    POST:
+    {
+        "is_active": True,
+        "name": "",
+        "category": null,
+        "quantity": null,
+        "price": null
+    }
 """
+
 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Product.objects.all()
@@ -70,10 +60,12 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
     ordering_fields = ["is_active", "name", "quantity", "price"]
     pagination_class = ProductPagination
 
+
 class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = "id"
+
 
 """
     GET: /api/products/orders?is_urgent=true&due_date__gte=&due_date__lte=&due_date=2024-08-31&status=Open
@@ -137,13 +129,14 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     }
 """
 
+
 class ProductOrderListCreateView(generics.ListCreateAPIView):
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    search_fields = ['id']
+    search_fields = ["id"]
     filterset_class = ProductOrderFilter
-    ordering_fields = ['is_urgent', 'created_at', 'due_date']
+    ordering_fields = ["is_urgent", "created_at", "due_date"]
     pagination_class = ProductOrderPagination
 
 
@@ -152,12 +145,107 @@ class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     serializer_class = ProductOrderSerializer
     lookup_field = "id"
 
+
+""" Customer List Create View API
+    get:
+    Return a list of all customers with pagination, filtering, and ordering options.
+
+    post:
+    Create a new customer.
+
+    Sample URL:
+    GET /api/customers/?search=Alice&page=1&ordering=name
+
+    Sample API Response (GET):
+    {
+        "count": 5,
+        "next": "http://example.com/api/customers/?page=2",
+        "previous": null,
+        "results": [
+            {
+                "id": 1,
+                "name": "Alice",
+                "email": "alice@example.com",
+                "phone": "1234567890",
+                "tier": "tier 1",
+                "fax": 123456,
+                "contact_list": [
+                    {
+                        "name": "Bob",
+                        "phone": "0987654321"
+                    }
+                ],
+                "address": "123 Nguyen Chi Thanh",
+                "note": "Test customer note"
+            },
+            {
+                "id": 2,
+                "name": "Bob",
+                "email": "bob@example.com",
+                "phone": "2345678901",
+                "tier": "tier 2",
+                "fax": 234567,
+                "contact_list": [
+                    {
+                        "name": "Charlie",
+                        "phone": "9876543210"
+                    }
+                ],
+                "address": "456 Nguyen Chi Thanh",
+                "note": "Another test customer note"
+            }
+        ]
+    }
+"""
+
+
 class CustomerListCreateView(generics.ListCreateAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    search_fields = ["name", "email", "phone"]
+    filterset_class = CustomerFilter
+    ordering_fields = ["name", "tier", "number_of_orders", "number_of_current_orders"]
+    pagination_class = CustomerPagination
 
 
-class CustomerDetail(generics.RetrieveUpdateDestroyAPIView):
+""" Customer Retrieve Update Destroy View API
+    get:
+    Retrieve a customer by ID.
+
+    put:
+    Update a customer by ID.
+
+    patch:
+    Partially update a customer by ID.
+
+    delete:
+    Delete a customer by ID.
+
+    Sample URL:
+    GET /api/customers/1/
+
+    Sample API Response (GET):
+    {
+        "id": 1,
+        "name": "Alice",
+        "email": "alice@example.com",
+        "phone": "1234567890",
+        "tier": "tier 1",
+        "fax": 123456,
+        "contact_list": [
+            {
+                "name": "Bob",
+                "phone": "0987654321"
+            }
+        ],
+        "address": "123 Nguyen Chi Thanh",
+        "note": "Test customer note"
+    }
+"""
+
+
+class CustomerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     lookup_field = "id"
