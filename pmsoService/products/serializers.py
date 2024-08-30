@@ -62,7 +62,6 @@ class ProductOrderSerializer(serializers.ModelSerializer):
         return product_order
 
     def update(self, instance, validated_data):
-        print(validated_data)
         instance.name = validated_data.get('name', instance.name)
         instance.is_urgent = validated_data.get('is_urgent', instance.is_urgent)
         instance.due_date = validated_data.get('due_date', instance.due_date)
@@ -74,10 +73,8 @@ class ProductOrderSerializer(serializers.ModelSerializer):
         instance.save()
 
         products_data = validated_data.pop('products', None)
-        print(products_data)
         if products_data:
             for product_data in products_data:
-                print(product_data)
                 product_instance = ProductOrderProduct.objects.get(
                     product_order=instance,
                     product=product_data['product']

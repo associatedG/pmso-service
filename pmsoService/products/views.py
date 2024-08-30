@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from .paginations import ProductOrderPagination, ProductPagination, CustomerPagination
 from .filters import ProductOrderFilter, ProductFilter, CustomerFilter
-from .models import Product, ProductOrder, Customer
+from .models import Product, ProductOrder, Customer, ProductOrderProduct
 from .serializers import ProductSerializer, ProductOrderSerializer, CustomerSerializer
 
 """
@@ -144,36 +144,6 @@ class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
     lookup_field = "id"
-
-    def patch(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', True)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        products_data = serializer.validated_data.pop('products', None)
-        if products_data:
-            for product_data in products_data:
-                product_order_product = ProductOrderProduct.objects.filter(
-                    product_order=instance,
-                    product=product_data['product']
-                ).first()
-                if product_order_product:
-                    product_order_product.quantity = product_data['quantity']
-                    product_order_product.save()
-                else:
-                    ProductOrderProduct.objects.create(
-                        product_order=instance, **product_data
-                    )
-
-        if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
-
-        return Response(serializer.data)
-
 
 """ Customer List Create View API
     get:
