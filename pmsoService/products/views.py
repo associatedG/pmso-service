@@ -1,10 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework import generics
+from rest_framework.response import Response
 
 from .paginations import ProductOrderPagination, ProductPagination, CustomerPagination
 from .filters import ProductOrderFilter, ProductFilter, CustomerFilter
-from .models import Product, ProductOrder, Customer
+from .models import Product, ProductOrder, Customer, ProductOrderProduct
 from .serializers import ProductSerializer, ProductOrderSerializer, CustomerSerializer
 
 """
@@ -65,7 +66,6 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = "id"
-
 
 """
     GET: /api/products/orders?is_urgent=true&due_date__gte=&due_date__lte=&due_date=2024-08-31&status=Open
@@ -144,7 +144,6 @@ class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIVie
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
     lookup_field = "id"
-
 
 """ Customer List Create View API
     get:
