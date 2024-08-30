@@ -16,7 +16,7 @@
     "PRODUCT_ORDER": {
         "STATUS_CHOICES": [
             ["Mở", "Open"],
-            ["Lên Kế Hoạch Sản Xuất", "Planning Production"],
+            ["Mua Vật Liệu", "Buying Materials"],
             ["Đang Sản Xuất", "In Production"],
             ["Giao Hàng", "Delivering"],
             ["Hoàn Thành", "Completed"],
