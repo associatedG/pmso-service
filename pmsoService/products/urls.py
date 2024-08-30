@@ -21,7 +21,7 @@ urlpatterns = [
         name="product_order_detail",
     ),
     path(
-        "products/orders",
+        "products/orders/",
         ProductOrderListCreateView.as_view(),
         name="product_order_list_create",
     ),
