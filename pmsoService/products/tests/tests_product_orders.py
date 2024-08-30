@@ -112,6 +112,33 @@ class TestProductOrderView(APITestCase):
       num_products = 2
       response = self.create_and_post_product_order(num_products)
 
+      product_order_id = response.data["id"]
+      product_order = ProductOrder.objects.get(id=product_order_id)
+      self.assertIsNotNone(product_order)
+
+    def test_update_quantity_product_order(self):
+      # Create a product order with multiple products
+      num_products = 2
+      response = self.create_and_post_product_order(num_products)
+
+      # Extract the ProductOrder ID and Product ID
+      product_order_id = response.data["id"]
+      product_id = response.data["products"][0]["product"].get("id")
+      initial_quantity = response.data["products"][0]["quantity"]
+
+      # Increment the quantity
+      new_quantity = initial_quantity + 1
+
+      # Patch request to update the quantity of the specific product in the order
+      patch_url = reverse("product_order_detail", kwargs={"id": product_order_id})
+      patch_data = {"products": [{"product_id": product_id, "quantity": new_quantity}]}
+      response = self.client.patch(patch_url, patch_data, format='json')
+
+      # Verify that the quantity was updated correctly
+      self.assertEqual(response.status_code, status.HTTP_200_OK)
+      updated_quantity = response.data["products"][0]["quantity"]
+      self.assertEqual(updated_quantity, new_quantity)
+
     def test_get_product_order_with_single_product(self):
       num_products = 1
       response = self.create_and_post_product_order(num_products)
