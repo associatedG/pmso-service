@@ -10,7 +10,7 @@ from http.client import responses
 
 from utils.choices_utils import *
 from products.models import *
-from products.serializers import ProductOrderSerializer
+from products.serializers import ProductOrderSerializer, GetProductOrderSerializer
 
 import uuid
 import string
@@ -108,7 +108,7 @@ class TestProductOrderView(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         sorted_products_order = ProductOrder.objects.all().order_by(ordering_field)
-        expected_data = ProductOrderSerializer(sorted_products_order, many=True).data
+        expected_data = GetProductOrderSerializer(sorted_products_order, many=True).data
 
         response_date_sorted = sorted(
             response.data.get("results"), key=lambda value: value["id"]
@@ -186,7 +186,9 @@ class TestProductOrderView(APITestCase):
 
         response = self.client.get(self.urls_create + "?is_urgent=True", format="json")
         filtered_product_orders = ProductOrder.objects.all().filter(is_urgent=True)
-        expected_data = ProductOrderSerializer(filtered_product_orders, many=True).data
+        expected_data = GetProductOrderSerializer(
+            filtered_product_orders, many=True
+        ).data
 
         self.assertEqual(response.data.get("results"), expected_data)
 
@@ -198,7 +200,9 @@ class TestProductOrderView(APITestCase):
             self.urls_create + f"?status={status}", format="json"
         )
         filtered_product_orders = ProductOrder.objects.all().filter(status=status)
-        expected_data = ProductOrderSerializer(filtered_product_orders, many=True).data
+        expected_data = GetProductOrderSerializer(
+            filtered_product_orders, many=True
+        ).data
 
         self.assertEqual(response.data.get("results"), expected_data)
 
@@ -219,7 +223,9 @@ class TestProductOrderView(APITestCase):
             .filter(due_date__gte=now)
             .filter(due_date__lte=mock_future_data_generator())
         )
-        expected_data = ProductOrderSerializer(filtered_product_orders, many=True).data
+        expected_data = GetProductOrderSerializer(
+            filtered_product_orders, many=True
+        ).data
 
         self.assertEqual(response.data.get("results"), expected_data)
 
@@ -260,7 +266,7 @@ class TestProductOrderView(APITestCase):
         self.assertIsNone(response.data.get("previous"))
 
         product_orders_object = ProductOrder.objects.all()[:page_size]
-        expected_data = ProductOrderSerializer(product_orders_object, many=True).data
+        expected_data = GetProductOrderSerializer(product_orders_object, many=True).data
 
         self.assertEqual(response.data.get("results"), expected_data)
 
@@ -279,11 +285,11 @@ class TestProductOrderView(APITestCase):
 
         response = self.client.patch(
             reverse("product_order_detail", kwargs={"id": product_order_id}),
-            {"status": "Giao Hàng"},
+            {"status": "Delivering"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["status"], "Giao Hàng")
+        self.assertEqual(response.data["status"], "Delivering")
 
     def test_delete_product_order(self):
         num_products = random.randint(1, 5)
@@ -302,11 +308,11 @@ class TestProductOrderView(APITestCase):
 
         response = self.client.patch(
             reverse("product_order_detail", kwargs={"id": product_order_id}),
-            {"status": "Mở"},
+            {"status": "Open"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["status"], "Mở")
+        self.assertEqual(response.data["status"], "Open")
 
     def test_cancel_already_canceled_product_order(self):
         num_products = random.randint(1, 5)
@@ -315,7 +321,7 @@ class TestProductOrderView(APITestCase):
 
         response = self.client.patch(
             reverse("product_order_detail", kwargs={"id": product_order_id}),
-            {"status": "Mở"},
+            {"status": "Open"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -1,8 +1,14 @@
-from django_filters.rest_framework import FilterSet
+from django_filters.rest_framework import FilterSet, CharFilter
 from products.models import ProductOrder, Product, Customer
 
 
 class ProductOrderFilter(FilterSet):
+    status = CharFilter(method="filter_status")
+
+    def filter_status(self, queryset, name, value):
+        status_list = value.split(",")
+        return queryset.filter(status__in=status_list)
+
     class Meta:
         model = ProductOrder
 
