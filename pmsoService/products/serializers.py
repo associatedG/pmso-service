@@ -34,6 +34,7 @@ class ProductOrderProductSerializer(serializers.ModelSerializer):
 
 class ProductOrderSerializer(serializers.ModelSerializer):
     products = ProductOrderProductSerializer(many=True)
+    customer_name = serializers.CharField(source="customer.name", read_only=True)
 
     class Meta:
         model = ProductOrder
@@ -44,6 +45,7 @@ class ProductOrderSerializer(serializers.ModelSerializer):
             "due_date",
             "status",
             "customer",
+            "customer_name",
             "sale_staff",
             "logistic_staff",
             "deliverer",
@@ -90,7 +92,9 @@ class CustomerSerializer(serializers.ModelSerializer):
         return obj.orders.count()
 
     def get_number_of_current_orders(self, obj):
-        return obj.orders.exclude(status__in=["COMPLETED", "IN_PROGRESS"]).count()
+        return obj.orders.filter(
+            status__in=["Open", "Planning Production", "In Production", "Delivering"]
+        ).count()
 
     def validate_phone(self, value):
         pattern = r"^(0[35789])([0-9]{8})\b$"

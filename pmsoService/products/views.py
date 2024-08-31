@@ -136,7 +136,7 @@ class ProductOrderListCreateView(generics.ListCreateAPIView):
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     search_fields = ["id"]
     filterset_class = ProductOrderFilter
-    ordering_fields = ["is_urgent", "created_at", "due_date"]
+    ordering_fields = ["is_urgent", "created_at", "due_date", "customer__name"]
     pagination_class = ProductOrderPagination
 
 
