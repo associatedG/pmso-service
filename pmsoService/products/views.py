@@ -6,7 +6,13 @@ from rest_framework.response import Response
 from .paginations import ProductOrderPagination, ProductPagination, CustomerPagination
 from .filters import ProductOrderFilter, ProductFilter, CustomerFilter
 from .models import Product, ProductOrder, Customer, ProductOrderProduct
-from .serializers import ProductSerializer, ProductOrderSerializer, CustomerSerializer
+from .serializers import (
+    ProductSerializer,
+    ProductOrderSerializer,
+    CustomerSerializer,
+    GetProductOrderSerializer,
+)
+
 
 """
     GET: /api/products/?category=Phuy&ordering=quantity
@@ -66,6 +72,7 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = "id"
+
 
 """
     GET: /api/products/orders?is_urgent=true&due_date__gte=&due_date__lte=&due_date=2024-08-31&status=Open
@@ -139,11 +146,22 @@ class ProductOrderListCreateView(generics.ListCreateAPIView):
     ordering_fields = ["is_urgent", "created_at", "due_date"]
     pagination_class = ProductOrderPagination
 
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return GetProductOrderSerializer
+        return ProductOrderSerializer
+
 
 class ProductOrderRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
     lookup_field = "id"
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return GetProductOrderSerializer
+        return ProductOrderSerializer
+
 
 """ Customer List Create View API
     get:

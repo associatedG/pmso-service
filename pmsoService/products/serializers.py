@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import ProductOrder, ProductOrderProduct, Product, Customer
+from account.serializers import UserSerializer
 import re
 
 
@@ -71,7 +72,6 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 class ProductOrderSerializer(serializers.ModelSerializer):
     products = ProductOrderProductSerializer(many=True)
-    customer = CustomerSerializer(read_only=True)
 
     class Meta:
         model = ProductOrder
@@ -122,3 +122,28 @@ class ProductOrderSerializer(serializers.ModelSerializer):
                 product_instance.save()
 
         return instance
+
+
+class GetProductOrderSerializer(serializers.ModelSerializer):
+    products = ProductOrderProductSerializer(many=True)
+    customer = CustomerSerializer(read_only=True)
+    sale_staff = UserSerializer(read_only=True)
+    logistic_staff = UserSerializer(read_only=True)
+    deliverer = UserSerializer(read_only=True)
+
+    class Meta:
+        model = ProductOrder
+        fields = [
+            "id",
+            "name",
+            "is_urgent",
+            "due_date",
+            "status",
+            "customer",
+            "sale_staff",
+            "logistic_staff",
+            "deliverer",
+            "last_modified",
+            "created_at",
+            "products",
+        ]
