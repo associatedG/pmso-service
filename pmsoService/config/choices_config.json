@@ -15,12 +15,12 @@
     },
     "PRODUCT_ORDER": {
         "STATUS_CHOICES": [
-            ["Open", "Mở"],
-            ["Planning Production", "Lên Kế Hoạch Sản Xuất"],
-            ["In Production", "Đang Sản Xuất"],
-            ["Delivering", "Giao Hàng"],
-            ["Completed", "Hoàn Thành"],
-            ["Cancelled", "Cancelled"]
+            ["Mở", "Open"],
+            ["Mua Vật Liệu", "Buying Materials"],
+            ["Đang Sản Xuất", "In Production"],
+            ["Giao Hàng", "Delivering"],
+            ["Hoàn Thành", "Completed"],
+            ["Huỷ", "Cancelled"]
         ]
     }
 }
