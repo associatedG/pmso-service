@@ -279,11 +279,11 @@ class TestProductOrderView(APITestCase):
 
         response = self.client.patch(
             reverse("product_order_detail", kwargs={"id": product_order_id}),
-            {"status": "Giao Hàng"},
+            {"status": "Delivering"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["status"], "Giao Hàng")
+        self.assertEqual(response.data["status"], "Delivering")
 
     def test_delete_product_order(self):
         num_products = random.randint(1, 5)
@@ -302,11 +302,11 @@ class TestProductOrderView(APITestCase):
 
         response = self.client.patch(
             reverse("product_order_detail", kwargs={"id": product_order_id}),
-            {"status": "Mở"},
+            {"status": "Open"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["status"], "Mở")
+        self.assertEqual(response.data["status"], "Open")
 
     def test_cancel_already_canceled_product_order(self):
         num_products = random.randint(1, 5)
@@ -315,7 +315,7 @@ class TestProductOrderView(APITestCase):
 
         response = self.client.patch(
             reverse("product_order_detail", kwargs={"id": product_order_id}),
-            {"status": "Mở"},
+            {"status": "Open"},
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
