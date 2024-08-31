@@ -63,6 +63,29 @@ class ProductOrderSerializer(serializers.ModelSerializer):
             )
         return product_order
 
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.is_urgent = validated_data.get('is_urgent', instance.is_urgent)
+        instance.due_date = validated_data.get('due_date', instance.due_date)
+        instance.status = validated_data.get('status', instance.status)
+        instance.customer = validated_data.get('customer', instance.customer)
+        instance.sale_staff = validated_data.get('sale_staff', instance.sale_staff)
+        instance.logistic_staff = validated_data.get('logistic_staff', instance.logistic_staff)
+        instance.deliverer = validated_data.get('deliverer', instance.deliverer)
+        instance.save()
+
+        products_data = validated_data.pop('products', None)
+        if products_data:
+            for product_data in products_data:
+                product_instance = ProductOrderProduct.objects.get(
+                    product_order=instance,
+                    product=product_data['product']
+                )
+                product_instance.quantity = product_data['quantity']
+                product_instance.save()
+
+        return instance
+
 
 class CustomerSerializer(serializers.ModelSerializer):
     orders = ProductOrderSerializer(many=True, read_only=True)
