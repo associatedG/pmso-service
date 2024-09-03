@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Count, Q
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework import generics
 from rest_framework.response import Response
@@ -263,6 +264,21 @@ class CustomerListCreateView(generics.ListCreateAPIView):
 
 
 class CustomerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     lookup_field = "id"
+
+    def get_queryset(self):
+        return Customer.objects.annotate(
+            number_of_orders=Count("orders"),
+            number_of_current_orders=Count(
+                "orders",
+                filter=Q(
+                    orders__status__in=[
+                        "Open",
+                        "Planning Production",
+                        "In Production",
+                        "Delivering",
+                    ]
+                ),
+            ),
+        )

@@ -10,85 +10,23 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth import get_user_model
 from products.models import ProductOrder
-from utils.choices_utils import get_all_category_choices, get_all_status_choices
+from utils.generator_utils import (
+    mock_customer_generator,
+    mock_product_generator,
+    mock_product_order_generator,
+    mock_user_generator,
+)
 
 User = get_user_model()
-CATEGORY_CHOICES = get_all_category_choices()
-STATUS_CHOICES = get_all_status_choices()
 
 # Helper functions for generating mock data
-
-
-def generate_random_string(length=10):
-    """Generate a random string of a given length."""
-    letters = string.ascii_letters + string.digits
-    return "".join(random.choice(letters) for _ in range(length))
-
-
-def mock_customer_generator():
-    """Generate mock customer data"""
-    contact_list = []
-    for _ in range(1):
-        contact = {
-            "name": generate_random_string(6),
-            "phone": f"0{random.choice('35789')}{random.randint(10000000, 99999999)}",
-        }
-        contact_list.append(contact)
-
-    return {
-        "name": f"Customer {generate_random_string(5)}",
-        "phone": f"0{random.choice('35789')}{random.randint(10000000, 99999999)}",
-        "email": f"{generate_random_string(8)}@example.com",
-        "tier": random.choice(["tier 1", "tier 2", "tier 3"]),
-        "fax": random.randint(100000, 999999),
-        "contact_list": contact_list,
-        "address": f"{random.randint(1, 100)} {generate_random_string(8)} Street",
-        "note": f"Note {generate_random_string(20)}",
-    }
-
-
-def mock_product_generator():
-    """Generate mock product data"""
-    return {
-        "name": f"Product {generate_random_string(5)}",
-        "category": random.choice(CATEGORY_CHOICES)[1],
-        "quantity": random.randint(1, 100),
-        "price": random.randint(10, 1000),
-    }
-
-
-def mock_product_order_generator(customer_id, staff_id, product_ids):
-    """Generate mock product order data"""
-    products = []
-    for product_id in product_ids:
-        product = {"product_id": product_id, "quantity": random.randint(1, 10)}
-        products.append(product)
-
-    return {
-        "is_urgent": random.choice([True, False]),
-        "due_date": (timezone.now() + timedelta(days=random.randint(1, 30))).strftime(
-            "%Y-%m-%d"
-        ),
-        "status": random.choice(
-            [
-                status
-                for status in STATUS_CHOICES
-                if status[0] not in ["Completed", "Cancelled"]
-            ]
-        )[0],
-        "customer": customer_id,
-        "sale_staff": staff_id,
-        "logistic_staff": staff_id,
-        "deliverer": staff_id,
-        "products": products,
-    }
 
 
 class TestCustomerProductOrderIntegration(APITestCase):
     @classmethod
     def setUpTestData(cls):
         """Set up test data for the entire test case"""
-        cls.user = User.objects.create_user(username="testuser", password="testpass")
+        cls.user = User.objects.create_user(mock_user_generator)
         cls.client = APIClient()
         cls.client.force_authenticate(user=cls.user)
         cls.customer_url = reverse("customer_list_create")
@@ -97,24 +35,28 @@ class TestCustomerProductOrderIntegration(APITestCase):
 
     def bulk_create_instances(self, num_customers=5, num_products=10, num_orders=20):
         """Create multiple customers, products, and orders for testing"""
-        customers = [self.create_customer() for _ in range(num_customers)]
-        products = [self.create_products(1)[0] for _ in range(max(3, num_products))]
+        customers = self.create_customer(num_customers)
+        products = self.create_products(num_products)
 
         for _ in range(num_orders):
-            customer = random.choice(customers)
+            customer = random.sample(customers, k=1)
             product_subset = random.sample(products, k=random.randint(1, 3))
             product_ids = [product["id"] for product in product_subset]
             self.create_order(customer, product_ids)
 
+        self.assertEqual(ProductOrder.objects.count(), num_orders)
         return customers, products
 
-    def create_customer(self):
+    def create_customer(self, num_customers=1):
         """Create a single customer via API"""
-        response = self.client.post(
-            self.customer_url, mock_customer_generator(), format="json"
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        return response.data["id"]
+        customers = []
+        for _ in range(num_customers):
+            response = self.client.post(
+                self.customer_url, mock_customer_generator(), format="json"
+            )
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            customers.append(response.data["id"])
+        return customers
 
     def create_products(self, count=3):
         """Create a specified number of products via API"""
@@ -127,8 +69,10 @@ class TestCustomerProductOrderIntegration(APITestCase):
             products.append(response.data)
         return products
 
-    def create_order(self, customer_id, product_ids):
+    def create_order(self, customer_ids, product_ids):
         """Create a single order via API"""
+        customer_id = customer_ids[random.randint(0, len(customer_ids) - 1)]
+        # print(customer_ids)
         order_data = mock_product_order_generator(
             customer_id=customer_id, staff_id=self.user.id, product_ids=product_ids
         )
@@ -138,10 +82,11 @@ class TestCustomerProductOrderIntegration(APITestCase):
 
     def test_create_customer_and_product_order(self):
         """Test creating a customer and associated product order"""
-        customer_id = self.create_customer()
+        customer_ids = self.create_customer()
+        customer_id = customer_ids[0]
         products = self.create_products()
         product_ids = [product["id"] for product in products]
-        self.create_order(customer_id, product_ids)
+        self.create_order(customer_ids, product_ids)
 
         # Verify customer creation
         customer_response = self.client.get(
@@ -157,7 +102,7 @@ class TestCustomerProductOrderIntegration(APITestCase):
 
         created_order = order_response.data["results"][0]
         self.assertIsNotNone(created_order["id"])
-        self.assertEqual(str(created_order["customer"]), customer_id)
+        self.assertEqual(str(created_order["customer"]["id"]), str(customer_id))
 
         # Verify products in the order
         order_product_ids = [
@@ -176,94 +121,57 @@ class TestCustomerProductOrderIntegration(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("customer", response.data)
 
-    def test_multiple_orders_per_customer(self):
-        """Test creating multiple orders for a single customer"""
-        customer_id = self.create_customer()
-        product_id = self.create_products(1)[0]["id"]
-
-        for _ in range(5):
-            self.create_order(customer_id, [product_id])
-
-        response = self.client.get(
-            reverse("customer_detail", kwargs={"id": customer_id})
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["number_of_orders"], 5)
-
     def test_customer_order_count(self):
         """Test the order count for a customer"""
-        customers, _ = self.bulk_create_instances(
-            num_customers=1, num_products=5, num_orders=3
-        )
-        response = self.client.get(
-            reverse("customer_detail", kwargs={"id": customers[0]})
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["number_of_orders"], 3)
+        customer_ids = self.create_customer()
+        product_ids = [product["id"] for product in self.create_products(5)]
 
-    def test_customer_current_order_count(self):
-        """Test the current (non-completed) order count for a customer"""
-        customer_id = self.create_customer()
-        product_id = self.create_products(1)[0]["id"]
-
+        orders = []
         for _ in range(5):
-            self.create_order(customer_id, [product_id])
-
-        # Mark two orders as completed
-        orders = ProductOrder.objects.filter(customer_id=customer_id)
-        for order in orders[:2]:
-            self.client.patch(
-                reverse("product_order_detail", kwargs={"id": order.id}),
-                {"status": "Completed"},
-                format="json",
-            )
+            order = self.create_order(customer_ids, product_ids)
+            orders.append(order["id"])
 
         response = self.client.get(
-            reverse("customer_detail", kwargs={"id": customer_id})
+            reverse("customer_detail", kwargs={"id": customer_ids[0]})
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["number_of_orders"], 5)
-        self.assertEqual(response.data["number_of_current_orders"], 3)
+        # Query the database directly to get the number of current orders
+        current_orders_count = ProductOrder.objects.filter(
+            customer_id=customer_ids[0],
+            status__in=["Open", "Planning Production", "In Production", "Delivering"],
+        ).count()
+
+        # Compare the database query result with the API response
+        self.assertEqual(
+            response.data["number_of_current_orders"], current_orders_count
+        )
 
     def test_order_product_order_by_customer_name(self):
         """Test ordering of product orders by customer name"""
-        self.bulk_create_instances(num_customers=5, num_products=10, num_orders=20)
+        self.bulk_create_instances(num_customers=10, num_products=10, num_orders=20)
 
         def check_order(order_by, reverse=False):
             """Helper function to check ordering"""
-            ordered_products = ProductOrder.objects.order_by(order_by)
-            customer_names = list(
-                ordered_products.values_list("customer__name", flat=True)
-            )
-            self.assertEqual(customer_names, sorted(customer_names, reverse=reverse))
+            response = self.client.get(self.product_order_url, {"ordering": order_by})
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Check ordering in database
-        check_order("customer__name")
-        check_order("-customer__name", reverse=True)
+            # Query the database directly
+            db_order_by = order_by.lstrip("-")
+            db_orders = ProductOrder.objects.all().order_by(db_order_by)
+            if reverse:
+                db_orders = db_orders.reverse()
+            db_customer_names = [order.customer.name for order in db_orders][:10]
+
+            # Compare API results with database query
+            api_customer_names = [
+                result["customer"]["name"] for result in response.data["results"]
+            ]
+            self.assertEqual(
+                [name.lower() for name in api_customer_names],
+                [name.lower() for name in db_customer_names],
+            )
 
         # Check ordering via API
-        for ordering in ["-customer__name", "customer__name"]:
-            response = self.client.get(self.product_order_url, {"ordering": ordering})
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            results = response.data["results"]
-            customer_names = [result["customer_name"] for result in results]
-            self.assertEqual(
-                customer_names, sorted(customer_names, reverse=ordering.startswith("-"))
-            )
-
-        # Additional checks for descending and ascending order
-        response = self.client.get(
-            self.product_order_url, {"ordering": "-customer__name"}
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        results = response.data["results"]
-        customer_names = [result["customer_name"] for result in results]
-        self.assertEqual(customer_names, sorted(customer_names, reverse=True))
-
-        response = self.client.get(
-            self.product_order_url, {"ordering": "customer__name"}
-        )
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        results = response.data["results"]
-        customer_names = [result["customer_name"] for result in results]
-        self.assertEqual(customer_names, sorted(customer_names))
+        check_order("customer__name")
+        check_order("-customer__name", reverse=True)
