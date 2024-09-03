@@ -1,15 +1,12 @@
 """Integration tests for Customer, Product, and ProductOrder models and APIs."""
 
-from datetime import timedelta
 import random
-import string
 import uuid
-from django.utils import timezone
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth import get_user_model
-from products.models import ProductOrder
+from products.models import ProductOrder, Customer
 from utils.generator_utils import (
     mock_customer_generator,
     mock_product_generator,
@@ -175,3 +172,45 @@ class TestCustomerProductOrderIntegration(APITestCase):
         # Check ordering via API
         check_order("customer__name")
         check_order("-customer__name", reverse=True)
+
+    def test_search_product_order_by_customer_name(self):
+        """Test searching product orders by customer name"""
+        # Create test data
+        customers, _ = self.bulk_create_instances(
+            num_customers=5, num_products=5, num_orders=10
+        )
+
+        # Choose a random customer to search for
+        search_customer_id = random.choice(customers)
+        search_customer_obj = Customer.objects.get(id=search_customer_id)
+        search_name = search_customer_obj.name
+        # Perform the search
+        response = self.client.get(
+            self.product_order_url, {"search": search_name}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check that all returned orders belong to the searched customer
+        for order in response.data["results"]:
+            self.assertEqual(order["customer"]["name"].lower(), search_name.lower())
+
+        # Verify against database query
+        db_orders = ProductOrder.objects.filter(customer__name__icontains=search_name)
+        self.assertEqual(len(response.data["results"]), db_orders.count())
+
+        # Test partial name search
+        partial_name = search_name[-3:]  # Use last 3 characters of the name
+        response = self.client.get(
+            self.product_order_url, {"search": partial_name}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Verify all returned orders contain the partial name
+        for order in response.data["results"]:
+            self.assertIn(partial_name.lower(), order["customer"]["name"].lower())
+
+        # Verify against database query for partial name
+        db_orders_partial = ProductOrder.objects.filter(
+            customer__name__icontains=partial_name
+        )
+        self.assertEqual(len(response.data["results"]), db_orders_partial.count())

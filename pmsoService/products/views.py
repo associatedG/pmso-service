@@ -142,7 +142,7 @@ class ProductOrderListCreateView(generics.ListCreateAPIView):
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    search_fields = ["id"]
+    search_fields = ["id", "customer__name"]
     filterset_class = ProductOrderFilter
     ordering_fields = ["is_urgent", "created_at", "due_date", "customer__name"]
     pagination_class = ProductOrderPagination
