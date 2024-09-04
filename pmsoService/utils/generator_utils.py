@@ -63,13 +63,7 @@ def mock_product_order_generator(customer_id, staff_id, product_ids):
         "due_date": (timezone.now() + timedelta(days=random.randint(1, 30))).strftime(
             "%Y-%m-%d"
         ),
-        "status": random.choice(
-            [
-                status
-                for status in STATUS_CHOICES
-                if status[0] not in ["Completed", "Cancelled"]
-            ]
-        )[0],
+        "status": random.choice([status for status in STATUS_CHOICES])[0],
         "customer": customer_id,
         "sale_staff": staff_id,
         "logistic_staff": staff_id,
