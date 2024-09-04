@@ -14,6 +14,11 @@ def generate_random_string(length=10):
     return "".join(random.choice(letters) for _ in range(length))
 
 
+def generate_phone_number():
+    """Generate a random phone number"""
+    return f"0{random.choice('35789')}{random.randint(10000000, 99999999)}"
+
+
 def mock_customer_generator():
     """Generate mock customer data"""
     contact_list = []
