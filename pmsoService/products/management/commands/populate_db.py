@@ -71,8 +71,9 @@ class Command(BaseCommand):
             product = Product.objects.create(
                 name=f"Product {i}",
                 category=random.choice(categories),
+                is_active=random.choice([True, False]),
                 quantity=random.randint(1, 100),
-                price=random.randint(10, 500),
+                price=random.randint(10000000, 100000000),
             )
             self.products.append(product)
 
