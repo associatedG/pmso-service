@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Count, Q
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework import generics
 from rest_framework.response import Response
@@ -141,9 +142,9 @@ class ProductOrderListCreateView(generics.ListCreateAPIView):
     queryset = ProductOrder.objects.all()
     serializer_class = ProductOrderSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    search_fields = ["id"]
+    search_fields = ["id", "customer__name"]
     filterset_class = ProductOrderFilter
-    ordering_fields = ["is_urgent", "created_at", "due_date"]
+    ordering_fields = ["is_urgent", "created_at", "due_date", "customer__name"]
     pagination_class = ProductOrderPagination
 
     def get_serializer_class(self):
@@ -263,6 +264,21 @@ class CustomerListCreateView(generics.ListCreateAPIView):
 
 
 class CustomerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     lookup_field = "id"
+
+    def get_queryset(self):
+        return Customer.objects.annotate(
+            number_of_orders=Count("orders"),
+            number_of_current_orders=Count(
+                "orders",
+                filter=Q(
+                    orders__status__in=[
+                        "Open",
+                        "Planning Production",
+                        "In Production",
+                        "Delivering",
+                    ]
+                ),
+            ),
+        )
