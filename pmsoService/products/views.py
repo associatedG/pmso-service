@@ -223,7 +223,7 @@ class CustomerListCreateView(generics.ListCreateAPIView):
     serializer_class = CustomerSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = CustomerFilter
-    search_fields = ["=phone", "name", "email"]
+    search_fields = ["phone", "name", "email"]
     ordering_fields = ["name", "tier", "number_of_orders", "number_of_current_orders"]
     pagination_class = CustomerPagination
 
