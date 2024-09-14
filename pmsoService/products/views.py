@@ -3,6 +3,7 @@ from django.db.models import Count, Q
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework import generics
 from rest_framework.response import Response
+from urllib.parse import unquote
 
 from .paginations import ProductOrderPagination, ProductPagination, CustomerPagination
 from .filters import ProductOrderFilter, ProductFilter, CustomerFilter
@@ -221,10 +222,26 @@ class CustomerListCreateView(generics.ListCreateAPIView):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    search_fields = ["name", "email", "phone"]
     filterset_class = CustomerFilter
+    search_fields = ["=phone", "name", "email"]
     ordering_fields = ["name", "tier", "number_of_orders", "number_of_current_orders"]
     pagination_class = CustomerPagination
+
+    def get_queryset(self):
+        return Customer.objects.annotate(
+            number_of_orders=Count("orders"),
+            number_of_current_orders=Count(
+                "orders",
+                filter=Q(
+                    orders__status__in=[
+                        "Open",
+                        "Planning Production",
+                        "In Production",
+                        "Delivering",
+                    ]
+                ),
+            ),
+        )
 
 
 """ Customer Retrieve Update Destroy View API
