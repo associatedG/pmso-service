@@ -37,5 +37,10 @@ jobs:
             coverageFile: ./pmsoService/coverage.xml
             token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Populate Data
+        run: |
+          cd pmsoService
+          python manage.py populate_db
+
 
 

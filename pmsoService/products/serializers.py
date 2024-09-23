@@ -67,6 +67,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 class ProductOrderSerializer(serializers.ModelSerializer):
     products = ProductOrderProductSerializer(many=True)
     customer_name = serializers.CharField(source="customer.name", read_only=True)
+    status = serializers.CharField(required=False)
 
     class Meta:
         model = ProductOrder
