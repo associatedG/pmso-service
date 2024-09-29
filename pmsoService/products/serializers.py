@@ -77,6 +77,8 @@ class ProductOrderSerializer(serializers.ModelSerializer):
             "is_urgent",
             "due_date",
             "status",
+            "note",
+            "is_cancelled",
             "customer",
             "customer_name",
             "sale_staff",
@@ -89,6 +91,9 @@ class ProductOrderSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         products_data = validated_data.pop("products")
+        validated_data["name"] = (
+            validated_data["customer"].name + "_" + str(validated_data["due_date"])
+        )
         product_order = ProductOrder.objects.create(**validated_data)
         for product_data in products_data:
             ProductOrderProduct.objects.create(
@@ -101,6 +106,7 @@ class ProductOrderSerializer(serializers.ModelSerializer):
         instance.is_urgent = validated_data.get("is_urgent", instance.is_urgent)
         instance.due_date = validated_data.get("due_date", instance.due_date)
         instance.status = validated_data.get("status", instance.status)
+        instance.note = validated_data.get("note", instance.note)
         instance.customer = validated_data.get("customer", instance.customer)
         instance.sale_staff = validated_data.get("sale_staff", instance.sale_staff)
         instance.logistic_staff = validated_data.get(
@@ -111,12 +117,30 @@ class ProductOrderSerializer(serializers.ModelSerializer):
 
         products_data = validated_data.pop("products", None)
         if products_data:
+            product_order_products = ProductOrderProduct.objects.all().filter(
+                product_order=instance
+            )
+            product_data_ids = set()
+
             for product_data in products_data:
-                product_instance = ProductOrderProduct.objects.get(
-                    product_order=instance, product=product_data["product"]
-                )
-                product_instance.quantity = product_data["quantity"]
+                product_data_ids.add(product_data["product"].id)
+                try:
+                    product_instance = ProductOrderProduct.objects.get(
+                        product_order=instance, product=product_data["product"]
+                    )
+                    product_instance.quantity = product_data["quantity"]
+                except ProductOrderProduct.DoesNotExist:
+                    # Create new product of product order if not existed
+                    product_instance = ProductOrderProduct.objects.create(
+                        product_order=instance,
+                        product=product_data["product"],
+                        quantity=product_data.get("quantity", 0),
+                    )
                 product_instance.save()
+
+            for product_order_product in product_order_products:
+                if product_order_product.product.id not in product_data_ids:
+                    product_order_product.delete()
 
         return instance
 
@@ -136,6 +160,8 @@ class GetProductOrderSerializer(serializers.ModelSerializer):
             "is_urgent",
             "due_date",
             "status",
+            "is_cancelled",
+            "note",
             "customer",
             "sale_staff",
             "logistic_staff",

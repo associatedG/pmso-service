@@ -10,8 +10,11 @@ TIER_CHOICES = get_all_tier_choices()
 STATUS_CHOICES = get_all_status_choices()
 CATEGORY_CHOICES = get_all_category_choices()
 
+
 class Customer(models.Model):
-    id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(
+        primary_key=True, unique=True, default=uuid.uuid4, editable=False
+    )
     name = models.CharField(max_length=255, unique=True, blank=False, null=False)
     phone = models.CharField(max_length=10, blank=True, null=True)
     tier = models.CharField(max_length=50, choices=TIER_CHOICES)
@@ -58,6 +61,8 @@ class ProductOrder(models.Model):
     is_urgent = models.BooleanField(default=False)
     due_date = models.DateField()
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default=OPEN)
+    note = models.CharField(max_length=2000, blank=True, default="")
+    is_cancelled = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
     last_modified = models.DateTimeField(auto_now=True, null=True)
     customer = models.ForeignKey(
