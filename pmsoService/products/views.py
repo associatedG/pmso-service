@@ -241,7 +241,7 @@ class CustomerListCreateView(generics.ListCreateAPIView):
                     ]
                 ),
             ),
-        )
+        ).order_by("id")
 
 
 """ Customer Retrieve Update Destroy View API
@@ -298,4 +298,6 @@ class CustomerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                     ]
                 ),
             ),
-        )
+        ).order_by(
+            "id"
+        )  # Add default ordering by 'id'
