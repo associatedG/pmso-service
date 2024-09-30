@@ -16,11 +16,12 @@
     "PRODUCT_ORDER": {
         "STATUS_CHOICES": [
             ["Open", "Mở"],
+            ["Processing", "Đang xử lý đơn hàng"],
             ["BuyingMaterial", "Lên Kế Hoạch Sản Xuất"],
             ["InProduction", "Đang Sản Xuất"],
             ["Delivering", "Giao Hàng"],
             ["Completed", "Hoàn Thành"],
-            ["Cancelled", "Cancelled"]
+            ["Cancelled", "Cancelled"]        
         ]
     }
 }
