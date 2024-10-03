@@ -56,14 +56,18 @@ class Product(models.Model):
         # Create notifications
         self.create_notifications(action)
 
-    def delete(self, *args, **kwargs):
-        # Create a notification for deletion
-        Notification.objects.create(
-            product=self,
-            message=f'Product {self.name} has been deleted.',
-            #user=self.sale_staff  # Example: Notify sale staff
-        )
-        super().delete(*args, **kwargs)
+    # def delete(self, *args, **kwargs):
+    #     # Create a notification for deletion
+    #     Notification.objects.create(
+    #         product=self,
+    #         message=f'Product {self.name} has been deleted.',
+    #         user=self.get_admin_user()  # Retrieve an admin user for the notification
+    #     )
+    #     super().delete(*args, **kwargs)
+
+    def get_admin_user(self):
+        # Logic to fetch an admin user or return self.user for the test
+        return User.objects.filter(role='ADMIN').first()
 
     def create_notifications(self, action):
         # Get all relevant users to notify
