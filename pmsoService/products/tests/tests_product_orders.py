@@ -70,6 +70,7 @@ class TestProductOrderView(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
+        cls.admin = User.objects.create_superuser(username="admin", password="admin")
         cls.user = User.objects.create_user(username="user", password="test123")
         cls.staff = User.objects.create_user(username="staff", password="test123")
         cls.logistic = User.objects.create_user(username="logistic", password="test123")

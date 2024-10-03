@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
     def delete_and_create_data_base(self):
         if 'WEBSITE_HOSTNAME' in os.environ:
-            os.system("python manage.py flush --no-input; python manage.py createsuperuser --username root --email root@pmso.vn --no-input")
+            os.system("python manage.py flush --no-input && python manage.py createsuperuser --username root --email root@pmso.vn --no-input")
         else:
             db_path = os.path.join(settings.BASE_DIR, "db.sqlite3")
             if os.path.exists(db_path):
@@ -35,6 +35,11 @@ class Command(BaseCommand):
 
     def create_user_data(self):
         roles = get_all_roles_names()
+        User.objects.create_superuser(
+            username="admin",
+            display_name="django-admin",
+            password="admin"
+        )
         for i in range(20):
             user = User.objects.create_user(
                 username=f"user{i}",
@@ -47,6 +52,7 @@ class Command(BaseCommand):
             )
             self.users.append(user)
 
+        self.stdout.write(self.style.SUCCESS(f"Created 1 admin user: admin/admin"))
         self.stdout.write(self.style.SUCCESS(f"Created {len(self.users)} users"))
 
     def create_customer_data(self):
