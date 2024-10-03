@@ -61,7 +61,7 @@ class Product(models.Model):
         Notification.objects.create(
             product=self,
             message=f'Product {self.name} has been deleted.',
-            user=self.sale_staff  # Example: Notify sale staff
+            #user=self.sale_staff  # Example: Notify sale staff
         )
         super().delete(*args, **kwargs)
 
