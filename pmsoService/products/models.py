@@ -5,6 +5,8 @@ from utils.choices_utils import *
 import uuid
 import json
 import os
+from notifications.models import Notification
+from account.models import User
 
 TIER_CHOICES = get_all_tier_choices()
 STATUS_CHOICES = get_all_status_choices()
@@ -46,6 +48,37 @@ class Product(models.Model):
     )
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
+
+    def save(self, *args, **kwargs):
+        action = "updated" if self.pk else "created"
+        super().save(*args, **kwargs)
+
+        # Create notifications
+        self.create_notifications(action)
+
+    def delete(self, *args, **kwargs):
+        # Create a notification for deletion
+        Notification.objects.create(
+            product=self,
+            message=f'Product {self.name} has been deleted.',
+            user=self.sale_staff  # Example: Notify sale staff
+        )
+        super().delete(*args, **kwargs)
+
+    def create_notifications(self, action):
+        # Get all relevant users to notify
+        users_to_notify = set()
+
+        # Notify admin users (you can customize this logic as per your role management)
+        admin_users = User.objects.filter(role='ADMIN')
+        users_to_notify.update(admin_users)
+
+        for user in users_to_notify:
+            Notification.objects.create(
+                product=self,
+                message=f'Product {self.name} has been {action}.',
+                user=user
+            )
 
     class Meta:
         ordering = ["name"]
@@ -89,6 +122,45 @@ class ProductOrder(models.Model):
         null=True,
         related_name="delivery_orders",
     )
+
+    def save(self, *args, **kwargs):
+        action = "updated" if self.pk else "created"
+        super().save(*args, **kwargs)
+
+        # Create notifications
+        self.create_notifications(action)
+
+    def delete(self, *args, **kwargs):
+        # Create a notification for deletion
+        Notification.objects.create(
+            product_order=self,
+            message=f'Product Order {self.name} has been deleted.',
+            user=self.sale_staff  # Example: Notify sale staff
+        )
+        super().delete(*args, **kwargs)
+
+    def create_notifications(self, action):
+        # Get all relevant users to notify
+        users_to_notify = set()
+
+        # Notify sale staff, logistic staff, and deliverer
+        if self.sale_staff:
+            users_to_notify.add(self.sale_staff)
+        if self.logistic_staff:
+            users_to_notify.add(self.logistic_staff)
+        if self.deliverer:
+            users_to_notify.add(self.deliverer)
+
+        # Notify admin users
+        admin_users = User.objects.filter(role='ADMIN')
+        users_to_notify.update(admin_users)
+
+        for user in users_to_notify:
+            Notification.objects.create(
+                product_order=self,
+                message=f'Product Order {self.name} has been {action}.',
+                user=user
+            )
 
     class Meta:
         ordering = ["due_date"]

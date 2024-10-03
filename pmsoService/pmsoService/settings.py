@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "account",
     "phonenumber_field",
     "products",
+    "notifications",
 ]
 
 REST_FRAMEWORK = {

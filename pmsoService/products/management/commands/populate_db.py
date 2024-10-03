@@ -17,12 +17,15 @@ class Command(BaseCommand):
     help = "Populates the database with initial data"
 
     def delete_and_create_data_base(self):
-        db_path = os.path.join(settings.BASE_DIR, "db.sqlite3")
-        if os.path.exists(db_path):
-            os.remove(db_path)
-            self.stdout.write(self.style.SUCCESS("Deleted db.sqlite3"))
-        self.stdout.write(self.style.WARNING("Running migrations..."))
-        os.system("python manage.py migrate")
+        if 'WEBSITE_HOSTNAME' in os.environ:
+            os.system("python manage.py flush --no-input; python manage.py createsuperuser --username root --email root@pmso.vn --no-input")
+        else:
+            db_path = os.path.join(settings.BASE_DIR, "db.sqlite3")
+            if os.path.exists(db_path):
+                os.remove(db_path)
+                self.stdout.write(self.style.SUCCESS("Deleted db.sqlite3"))
+            self.stdout.write(self.style.WARNING("Running migrations..."))
+            os.system("python manage.py migrate")
 
     def generate_phone_number(self):
         first_digit = "0"
