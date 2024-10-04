@@ -15,7 +15,6 @@ def format_changes(changes):
         old_value = change.old
         new_value = change.new
         formatted_changes.append(f"{field_name}: '{old_value}' → '{new_value}'")
-    
     return formatted_changes
 
 @receiver(post_save, sender=Product)
@@ -30,8 +29,9 @@ def product_saved(sender, instance, created, **kwargs):
 
 def create_notifications_for_product(product, action, actor=None, changes=None):
     admin_users = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
+    formatted_changes = format_changes(changes)
 
-    changes_message = f"\nThese are the changes: {', '.join(format_changes(changes))}." if changes else ""
+    changes_message = f"\nThese are the changes: {', '.join(formatted_changes)}." if changes else ""
     
     for user in admin_users:
         message = (
@@ -43,7 +43,8 @@ def create_notifications_for_product(product, action, actor=None, changes=None):
             message=message,
             user=user,
             action=action,
-            actor=actor
+            actor=actor,
+            changes=formatted_changes
         )
 
 @receiver(post_save, sender=ProductOrder)
@@ -66,9 +67,10 @@ def create_notifications_for_product_order(order, action, actor=None, changes=No
         users_to_notify.add(order.logistic_staff)
     if order.deliverer:
         users_to_notify.add(order.deliverer)
-    
 
-    changes_message = f"\nThese are the changes: {', '.join(format_changes(changes))}." if changes else ""
+    formatted_changes = format_changes(changes)
+
+    changes_message = f"\nThese are the changes: {', '.join(formatted_changes)}." if changes else ""
 
     for user in users_to_notify:
         message = (
@@ -80,5 +82,6 @@ def create_notifications_for_product_order(order, action, actor=None, changes=No
             message=message,
             user=user,
             action=action,
-            actor=actor
+            actor=actor,
+            changes = formatted_changes
         )
