@@ -35,11 +35,13 @@ class Command(BaseCommand):
 
     def create_user_data(self):
         roles = get_all_roles_names()
-        User.objects.create_superuser(
-            username="admin",
-            display_name="django-admin",
-            password="admin"
-        )
+        if 'WEBSITE_HOSTNAME' not in os.environ:
+            User.objects.create_superuser(
+                username="admin",
+                display_name="django-admin",
+                password="admin"
+            )
+            self.stdout.write(self.style.SUCCESS(f"Created 1 admin user: admin/admin"))
         for i in range(20):
             user = User.objects.create_user(
                 username=f"user{i}",
@@ -52,7 +54,7 @@ class Command(BaseCommand):
             )
             self.users.append(user)
 
-        self.stdout.write(self.style.SUCCESS(f"Created 1 admin user: admin/admin"))
+        
         self.stdout.write(self.style.SUCCESS(f"Created {len(self.users)} users"))
 
     def create_customer_data(self):
@@ -61,7 +63,7 @@ class Command(BaseCommand):
                 name=f"Customer {i}",
                 phone=self.generate_phone_number(),
                 tier=random.choice([choice[0] for choice in get_all_tier_choices()]),
-                fax=random.randint(1000000000, 9999999999),
+                #fax=random.randint(1000000000, 9999999999),
                 email=f"customer{i}@example.com",
                 address=f"1234 Address St, City {i}, Country",
                 note=f"This is a note for Customer {i}",
