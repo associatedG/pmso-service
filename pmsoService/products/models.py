@@ -2,19 +2,16 @@ from django.utils import timezone
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from utils.choices_utils import *
+from simple_history.models import HistoricalRecords
 import uuid
-import json
-import os
+from django.core.exceptions import ObjectDoesNotExist
 
 TIER_CHOICES = get_all_tier_choices()
 STATUS_CHOICES = get_all_status_choices()
 CATEGORY_CHOICES = get_all_category_choices()
 
-
 class Customer(models.Model):
-    id = models.UUIDField(
-        primary_key=True, unique=True, default=uuid.uuid4, editable=False
-    )
+    id = models.UUIDField(primary_key=True, unique=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255, unique=True, blank=False, null=False)
     phone = models.CharField(max_length=10, blank=True, null=True)
     tier = models.CharField(max_length=50, choices=TIER_CHOICES)
@@ -25,6 +22,16 @@ class Customer(models.Model):
     note = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
+
+    def get_changes(self):
+        historical = self.history.all()
+        if historical.count() < 2:
+            return []  # No previous version to compare with
+        
+        latest_historical = historical.latest()
+        previous_historical = historical.order_by('-history_date')[1]  # Second latest
+        return latest_historical.diff_against(previous_historical, excluded_fields=["created_at", "last_modified"]).changes, latest_historical.history_user
 
     class Meta:
         ordering = ["name"]
@@ -33,19 +40,22 @@ class Customer(models.Model):
 
 
 class Product(models.Model):
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False,
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     is_active = models.BooleanField(default=True)
     name = models.CharField(max_length=255, unique=True, blank=False, null=False)
-    category = models.CharField(
-        max_length=255,
-        choices=CATEGORY_CHOICES,
-    )
+    category = models.CharField(max_length=255, choices=CATEGORY_CHOICES)
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
+    history = HistoricalRecords()
+
+    def get_changes(self):
+        historical = self.history.all()
+        if historical.count() < 2:
+            return []  # No previous version to compare with
+        
+        latest_historical = historical.latest()
+        previous_historical = historical.order_by('-history_date')[1]  # Second latest
+        return latest_historical.diff_against(previous_historical, excluded_fields=["created_at", "last_modified"]).changes, latest_historical.history_user
 
     class Meta:
         ordering = ["name"]
@@ -89,6 +99,16 @@ class ProductOrder(models.Model):
         null=True,
         related_name="delivery_orders",
     )
+    history = HistoricalRecords()
+
+    def get_changes(self):
+        historical = self.history.all()
+        if historical.count() < 2:
+            return []  # No previous version to compare with
+        
+        latest_historical = historical.latest()
+        previous_historical = historical.order_by('-history_date')[1]  # Second latest
+        return latest_historical.diff_against(previous_historical, excluded_fields=["created_at", "last_modified"]).changes, latest_historical.history_user
 
     class Meta:
         ordering = ["due_date"]
@@ -97,11 +117,19 @@ class ProductOrder(models.Model):
 
 
 class ProductOrderProduct(models.Model):
-    product_order = models.ForeignKey(
-        ProductOrder, on_delete=models.CASCADE, related_name="products"
-    )
+    product_order = models.ForeignKey(ProductOrder, on_delete=models.CASCADE, related_name="products")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+    history = HistoricalRecords()
+
+    def get_changes(self):
+        historical = self.history.all()
+        if historical.count() < 2:
+            return []  # No previous version to compare with
+        
+        latest_historical = historical.latest()
+        previous_historical = historical.order_by('-history_date')[1]  # Second latest
+        return latest_historical.diff_against(previous_historical, excluded_fields=["created_at", "last_modified"]).changes, latest_historical.history_user
 
     class Meta:
         verbose_name = "Product Order Product"

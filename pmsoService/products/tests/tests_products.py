@@ -40,6 +40,7 @@ class TestProductsViews(APITestCase):
 
 	@classmethod
 	def setUpTestData(self):
+		self.admin = User.objects.create_superuser(username="admin", password="admin")
 		self.user = User.objects.create_user(username="user", password="test123")
 		self.client = APIClient()
 		self.client.force_authenticate(user=self.user)
