@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from utils.choices_utils import *
+from simple_history.models import HistoricalRecords
 import uuid
 import json
 import os
@@ -25,6 +26,7 @@ class Customer(models.Model):
     note = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ["name"]
@@ -46,6 +48,7 @@ class Product(models.Model):
     )
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ["name"]
@@ -89,6 +92,7 @@ class ProductOrder(models.Model):
         null=True,
         related_name="delivery_orders",
     )
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ["due_date"]
@@ -102,6 +106,7 @@ class ProductOrderProduct(models.Model):
     )
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Product Order Product"

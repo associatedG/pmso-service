@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Product, ProductOrder, ProductOrderProduct, Customer
+from simple_history.admin import SimpleHistoryAdmin
 
 
 class ProductOrderProductInline(admin.TabularInline):
@@ -9,11 +10,11 @@ class ProductOrderProductInline(admin.TabularInline):
     verbose_name_plural = "Products"
 
 
-class ProductOrderAdmin(admin.ModelAdmin):
+class ProductOrderAdmin(SimpleHistoryAdmin, admin.ModelAdmin):
     inlines = [ProductOrderProductInline]
 
 
-admin.site.register(Product)
+admin.site.register(Product, SimpleHistoryAdmin)
 admin.site.register(ProductOrder, ProductOrderAdmin)
-admin.site.register(ProductOrderProduct)
-admin.site.register(Customer)
+admin.site.register(ProductOrderProduct, SimpleHistoryAdmin)
+admin.site.register(Customer, SimpleHistoryAdmin)
