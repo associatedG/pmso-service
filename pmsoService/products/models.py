@@ -24,6 +24,15 @@ class Customer(models.Model):
     modified_at = models.DateTimeField(auto_now=True)
     history = HistoricalRecords()
 
+    def get_changes(self):
+        historical = self.history.all()
+        if historical.count() < 2:
+            return []  # No previous version to compare with
+        
+        latest_historical = historical.latest()
+        previous_historical = historical.order_by('-history_date')[1]  # Second latest
+        return latest_historical.diff_against(previous_historical, excluded_fields=["created_at", "last_modified"]).changes, latest_historical.history_user
+
     class Meta:
         ordering = ["name"]
         verbose_name = "Customer"
@@ -38,6 +47,15 @@ class Product(models.Model):
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
     history = HistoricalRecords()
+
+    def get_changes(self):
+        historical = self.history.all()
+        if historical.count() < 2:
+            return []  # No previous version to compare with
+        
+        latest_historical = historical.latest()
+        previous_historical = historical.order_by('-history_date')[1]  # Second latest
+        return latest_historical.diff_against(previous_historical, excluded_fields=["created_at", "last_modified"]).changes, latest_historical.history_user
 
     class Meta:
         ordering = ["name"]
@@ -83,6 +101,15 @@ class ProductOrder(models.Model):
     )
     history = HistoricalRecords()
 
+    def get_changes(self):
+        historical = self.history.all()
+        if historical.count() < 2:
+            return []  # No previous version to compare with
+        
+        latest_historical = historical.latest()
+        previous_historical = historical.order_by('-history_date')[1]  # Second latest
+        return latest_historical.diff_against(previous_historical, excluded_fields=["created_at", "last_modified"]).changes, latest_historical.history_user
+
     class Meta:
         ordering = ["due_date"]
         verbose_name = "Product Order"
@@ -94,6 +121,15 @@ class ProductOrderProduct(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     history = HistoricalRecords()
+
+    def get_changes(self):
+        historical = self.history.all()
+        if historical.count() < 2:
+            return []  # No previous version to compare with
+        
+        latest_historical = historical.latest()
+        previous_historical = historical.order_by('-history_date')[1]  # Second latest
+        return latest_historical.diff_against(previous_historical, excluded_fields=["created_at", "last_modified"]).changes, latest_historical.history_user
 
     class Meta:
         verbose_name = "Product Order Product"
