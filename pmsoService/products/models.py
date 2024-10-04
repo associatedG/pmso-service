@@ -35,37 +35,6 @@ class Product(models.Model):
     category = models.CharField(max_length=255, choices=CATEGORY_CHOICES)
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
-    
-    _previous_state = None  # Attribute to hold previous state
-
-    def save(self, user=None, *args, **kwargs):
-        # Fetch previous state before saving
-        try:
-            previous_state = ProductOrder.objects.get(pk=self.pk)
-            self._previous_state = previous_state
-        except:
-            self._previous_state = None
-        
-        # Save the current state
-        super().save(*args, **kwargs)
-        # Notify with the user after saving
-        if user:
-            # Call the post_save signal handler manually if needed
-            product_saved(sender=self.__class__, instance=self, created=(self.pk is None), user=user)
-
-    def get_changes(self):
-        changes = []
-        if self._previous_state:
-            for field in self._meta.fields:
-                # Skip fields you don't want to log
-                if field.name in ['created_at', 'last_modified']:
-                    continue
-                
-                old_value = getattr(self._previous_state, field.name)
-                new_value = getattr(self, field.name)
-                if old_value != new_value:
-                    changes.append(f"{field.name}={old_value} -> {new_value}")
-        return changes
 
     class Meta:
         ordering = ["name"]
@@ -89,39 +58,6 @@ class ProductOrder(models.Model):
     sale_staff = models.ForeignKey("account.User", on_delete=models.PROTECT, null=True, related_name="sale_orders")
     logistic_staff = models.ForeignKey("account.User", on_delete=models.PROTECT, null=True, related_name="logistic_orders")
     deliverer = models.ForeignKey("account.User", on_delete=models.PROTECT, null=True, related_name="delivery_orders")
-    
-    _previous_state = None  # Attribute to hold previous state
-
-    def save(self, user=None, *args, **kwargs):
-        # Fetch previous state before saving
-        try:
-            previous_state = ProductOrder.objects.get(pk=self.pk)
-            self._previous_state = previous_state
-        except:
-            self._previous_state = None
-        
-        # Save the current state
-        super().save(*args, **kwargs)
-
-        # Notify with the user after saving
-        if user:
-            # Call the post_save signal handler manually if needed
-            product_saved(sender=self.__class__, instance=self, created=(self.pk is None), user=user)
-        
-
-    def get_changes(self):
-        changes = []
-        if self._previous_state:
-            for field in self._meta.fields:
-                # Skip fields you don't want to log
-                if field.name in ['created_at', 'last_modified']:
-                    continue
-                
-                old_value = getattr(self._previous_state, field.name)
-                new_value = getattr(self, field.name)
-                if old_value != new_value:
-                    changes.append(f"{field.name}={old_value} -> {new_value}")
-        return changes
 
     class Meta:
         ordering = ["due_date"]
