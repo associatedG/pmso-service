@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from utils.choices_utils import *
+from simple_history.models import HistoricalRecords
 import uuid
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -21,6 +22,7 @@ class Customer(models.Model):
     note = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ["name"]
@@ -35,6 +37,7 @@ class Product(models.Model):
     category = models.CharField(max_length=255, choices=CATEGORY_CHOICES)
     quantity = models.PositiveIntegerField()
     price = models.PositiveIntegerField()
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ["name"]
@@ -54,10 +57,31 @@ class ProductOrder(models.Model):
     is_cancelled = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
     last_modified = models.DateTimeField(auto_now=True, null=True)
-    customer = models.ForeignKey("Customer", on_delete=models.PROTECT, null=True, related_name="orders")
-    sale_staff = models.ForeignKey("account.User", on_delete=models.PROTECT, null=True, related_name="sale_orders")
-    logistic_staff = models.ForeignKey("account.User", on_delete=models.PROTECT, null=True, related_name="logistic_orders")
-    deliverer = models.ForeignKey("account.User", on_delete=models.PROTECT, null=True, related_name="delivery_orders")
+    customer = models.ForeignKey(
+        "Customer",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="orders",
+    )
+    sale_staff = models.ForeignKey(
+        "account.User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="sale_orders",
+    )
+    logistic_staff = models.ForeignKey(
+        "account.User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="logistic_orders",
+    )
+    deliverer = models.ForeignKey(
+        "account.User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="delivery_orders",
+    )
+    history = HistoricalRecords()
 
     class Meta:
         ordering = ["due_date"]
@@ -69,6 +93,7 @@ class ProductOrderProduct(models.Model):
     product_order = models.ForeignKey(ProductOrder, on_delete=models.CASCADE, related_name="products")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Product Order Product"
