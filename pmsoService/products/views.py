@@ -241,7 +241,7 @@ class CustomerListCreateView(generics.ListCreateAPIView):
                     ]
                 ),
             ),
-        )
+        ).order_by("-name")
 
 
 """ Customer Retrieve Update Destroy View API

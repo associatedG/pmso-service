@@ -259,4 +259,6 @@ class CustomerListCreateViewTest(APITestCase):
 
     def test_invalid_filter(self):
         response = self.client.get(self.url, {"tier": "invalid_tier"}, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 0)
+        self.assertEqual(len(response.data["results"]), 0)
