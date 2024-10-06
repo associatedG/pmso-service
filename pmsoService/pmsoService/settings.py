@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     "account",
     "phonenumber_field",
     "products",
+    "notifications",
+    'simple_history',
 ]
 
 REST_FRAMEWORK = {
@@ -59,6 +61,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
 ]
 
 REST_FRAMEWORK = {

@@ -298,4 +298,6 @@ class CustomerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                     ]
                 ),
             ),
-        )
+        ).order_by(
+            "id"
+        )  # Add default ordering by 'id'

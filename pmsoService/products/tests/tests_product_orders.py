@@ -1,20 +1,18 @@
-from time import timezone
-
-from django.urls import reverse
-from django.contrib.auth import get_user_model
-from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
-
+import random
+import string
+import uuid
 from datetime import datetime, timedelta
 from http.client import responses
+from time import timezone
 
-from utils.choices_utils import *
+from django.contrib.auth import get_user_model
+from django.urls import reverse
 from products.models import *
-from products.serializers import ProductOrderSerializer, GetProductOrderSerializer
-
-import uuid
-import string
-import random
+from products.serializers import GetProductOrderSerializer, ProductOrderSerializer
+from rest_framework import status
+from rest_framework.test import APIClient, APITestCase
+from utils.choices_utils import *
+from utils.generator_utils import mock_customer_generator
 
 User = get_user_model()
 CATEGORY_CHOICES = get_all_category_choices()
@@ -27,7 +25,7 @@ def generate_random_string(length=10):
     return "".join(random.choice(letters) for _ in range(length))
 
 
-def mock_product_generator():
+def mock_product_generator():  # -> dict[str, Any]:
     """Generate mock user based on role"""
     return {
         "name": generate_random_string(),
@@ -43,14 +41,17 @@ def mock_future_data_generator():
     return days_in_future.strftime("%Y-%m-%d")
 
 
-def mock_product_order_generator(staff_id, logistic_id, deliverer_id, products):
+def mock_product_order_generator(
+    customer_id, staff_id, logistic_id, deliverer_id, products
+):
     status = random.choice(STATUS_CHOICES)[0]
     return {
         "is_urgent": random.choice([True, False]),
-        "due_date": (timezone.now() + timedelta(days=random.randint(1, 5))).strftime(
+        "due_date": (timezone.now() + timedelta(days=random.randint(1, 10))).strftime(
             "%Y-%m-%d"
         ),
         "status": status,
+        "customer": customer_id,
         "sale_staff": staff_id,
         "logistic_staff": logistic_id,
         "deliverer": deliverer_id,
@@ -68,18 +69,18 @@ def mock_products_generator(product_ids):
 class TestProductOrderView(APITestCase):
 
     @classmethod
-    def setUpTestData(self):
-        self.user = User.objects.create_user(username="user", password="test123")
-        self.staff = User.objects.create_user(username="staff", password="test123")
-        self.logistic = User.objects.create_user(
-            username="logistic", password="test123"
-        )
-        self.deliverer = User.objects.create_user(
+    def setUpTestData(cls):
+        cls.admin = User.objects.create_superuser(username="admin", password="admin")
+        cls.user = User.objects.create_user(username="user", password="test123")
+        cls.staff = User.objects.create_user(username="staff", password="test123")
+        cls.logistic = User.objects.create_user(username="logistic", password="test123")
+        cls.deliverer = User.objects.create_user(
             username="deliverer", password="test123"
         )
-        self.urls_create = reverse("product_order_list_create")
-        self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
+        cls.customer = Customer.objects.create(**mock_customer_generator())
+        cls.urls_create = reverse("product_order_list_create")
+        cls.client = APIClient()
+        cls.client.force_authenticate(user=cls.user)
 
     def create_product_order(self, num_products):
         products = [
@@ -88,6 +89,7 @@ class TestProductOrderView(APITestCase):
         ]
         product_ids = [product.id for product in products]
         return mock_product_order_generator(
+            self.customer.id,
             self.staff.id,
             self.logistic.id,
             self.deliverer.id,
@@ -207,21 +209,18 @@ class TestProductOrderView(APITestCase):
         self.assertEqual(response.data.get("results"), expected_data)
 
     def test_filter_product_order_due_date(self):
-
-        now = timezone.now().strftime("%Y-%m-%d")
+        now = timezone.now().date()
+        future_date = now + timedelta(days=30)
         self.create_multiple_product_orders()
 
         response = self.client.get(
-            self.urls_create
-            + f"?due_date__gte={now}&due_date__={mock_future_data_generator()}",
+            self.urls_create + f"?due_date__gte={now}&due_date__lte={future_date}",
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        filtered_product_orders = (
-            ProductOrder.objects.all()
-            .filter(due_date__gte=now)
-            .filter(due_date__lte=mock_future_data_generator())
+        filtered_product_orders = ProductOrder.objects.filter(
+            due_date__gte=now, due_date__lte=future_date
         )
         expected_data = GetProductOrderSerializer(
             filtered_product_orders, many=True
@@ -325,3 +324,16 @@ class TestProductOrderView(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_product_order_name(self):
+        num_products = 2
+        response = self.create_and_post_product_order(num_products)
+        product_order_id = response.data["id"]
+
+        product_order = ProductOrder.objects.get(id=product_order_id)
+        self.assertIsNotNone(product_order.name)
+
+        expected_name = (
+            f"{self.customer.name}_{product_order.due_date.strftime('%Y%m%d')}"
+        )
+        self.assertTrue(product_order.name.startswith(expected_name))
