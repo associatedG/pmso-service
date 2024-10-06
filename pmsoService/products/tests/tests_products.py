@@ -131,9 +131,11 @@ class TestProductsViews(APITestCase):
 		self.assertEqual(response.data.get('count'), 4)
 
 	def test_invalid_filter_category(self):
-		invalid_category = "Thung1"
+		invalid_category = "invalid"
 		response = self.client.get(self.urls_create + f"?category={invalid_category}", format="json")
-		self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+		self.assertEqual(response.data['count'], 0)
+		self.assertEqual(len(response.data['results']), 0)
 
 	def test_filter_is_active(self):
 		test_category = self.product["category"]

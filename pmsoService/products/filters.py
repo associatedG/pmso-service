@@ -20,6 +20,12 @@ class ProductOrderFilter(FilterSet):
 
 
 class ProductFilter(FilterSet):
+    category = CharFilter(method="filter_category")
+
+    def filter_category(self, queryset, name, value):
+        category_list = value.split(",")
+        return queryset.filter(category__in=category_list)
+
     class Meta:
         model = Product
 
@@ -30,6 +36,12 @@ class ProductFilter(FilterSet):
 
 
 class CustomerFilter(FilterSet):
+    tier = CharFilter(method="filter_tier")
+
+    def filter_tier(self, queryset, name, value):
+        tier_list = value.split(",")
+        return queryset.filter(tier__in=tier_list)
+
     class Meta:
         model = Customer
 
