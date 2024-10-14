@@ -35,6 +35,9 @@ STORAGES = {
 CONNECTION = os.environ['AZURE_POSTGRESQL_CONNECTIONSTRING']
 CONNECTION_STR = {pair.split('=')[0]:pair.split('=')[1] for pair in CONNECTION.split(' ')}
 
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
