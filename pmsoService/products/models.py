@@ -18,7 +18,7 @@ class Customer(models.Model):
     fax = models.IntegerField(blank=True, null=True)
     contact_list = models.JSONField(blank=True, null=True, default=dict)
     email = models.EmailField(max_length=255, blank=True, null=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
+    address = models.JSONField(max_length=255, blank=True, null=True)
     note = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(auto_now=True)
