@@ -59,18 +59,36 @@ class Command(BaseCommand):
 
     def create_customer_data(self):
         for i in range(20):
+            num_contacts = random.randint(1, 3)
+            default_contact_index = random.randint(0, num_contacts - 1)
+            
+            contact_list = []
+            for j in range(num_contacts):
+                contact_list.append({
+                    "id": j + 1,
+                    "contact": {
+                        "is_default": j == default_contact_index,
+                        "name": f"Contact {j}",
+                        "phone": self.generate_phone_number(),
+                        "email": f"contact{j}@example.com",
+                        "position": f"Position {j}",
+                    }
+                })
+
             customer = Customer.objects.create(
                 name=f"Customer {i}",
                 phone=self.generate_phone_number(),
                 tier=random.choice([choice[0] for choice in get_all_tier_choices()]),
-                #fax=random.randint(1000000000, 9999999999),
+                fax=random.randint(1000000000, 9999999999),
                 email=f"customer{i}@example.com",
-                address=f"1234 Address St, City {i}, Country",
-                note=f"This is a note for Customer {i}",
-                contact_list={
-                    "primary": f"contact{i}@example.com",
-                    "secondary": f"secondary{i}@example.com",
+                address={
+                    "home_address": f"{random.randint(1, 100)} Main St",
+                    "ward": f"Ward {random.randint(1, 10)}",
+                    "district": f"District {random.randint(1, 5)}",
+                    "city": f"City {random.randint(1, 3)}",
+                    "country": "Vietnam",
                 },
+                contact_list=contact_list,
             )
             self.customers.append(customer)
 
