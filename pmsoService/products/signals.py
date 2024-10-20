@@ -4,6 +4,12 @@ from django.db.models import Q
 from .models import Product, ProductOrder
 from notifications.models import Notification
 from account.models import User
+import os
+
+try:
+    BASE_URL = 'https://'+os.environ['WEBSITE_HOSTNAME']
+except KeyError:
+    BASE_URL = 'http://localhost:3000'
 
 def format_changes(changes):
     if not changes:
@@ -39,7 +45,8 @@ def create_notifications_for_product(product, action, actor=None, changes=None):
             f'"{actor if actor else "an unknown user"}"{changes_message}'
         )
         Notification.objects.create(
-            product=product,
+            target_url=BASE_URL+'/products/'+str(product.id),
+            target_name=product.name,
             message=message,
             user=user,
             action=action,
@@ -78,7 +85,8 @@ def create_notifications_for_product_order(order, action, actor=None, changes=No
             f'"{actor if actor else "an unknown user"}"{changes_message}'
         )
         Notification.objects.create(
-            product_order=order,
+            target_url=BASE_URL+'/product-orders/'+str(order.id),
+            target_name=order.name,
             message=message,
             user=user,
             action=action,
