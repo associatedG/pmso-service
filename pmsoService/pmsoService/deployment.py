@@ -2,10 +2,10 @@ import os
 from .settings import *
 from .settings import BASE_DIR
 
-ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']]
-CSRF_TRUSTED_ORIGINS = ['https://'+os.environ['WEBSITE_HOSTNAME']]
+ALLOWED_HOSTS = [os.environ["WEBSITE_HOSTNAME"]]
+CSRF_TRUSTED_ORIGINS = ["https://" + os.environ["WEBSITE_HOSTNAME"]]
 DEBUG = True
-SECRET_KEY = os.environ['MY_SECRET_KEY']
+SECRET_KEY = os.environ["MY_SECRET_KEY"]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -20,7 +20,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'https://lively-water-01c0a510f.5.azurestaticapps.net'
+    "https://lively-water-01c0a510f.5.azurestaticapps.net",
+    "https://mysterious-brushlands-60988-54263a572c52.herokuapp.com",
 ]
 
 STORAGES = {
@@ -32,21 +33,23 @@ STORAGES = {
     },
 }
 
-CONNECTION = os.environ['AZURE_POSTGRESQL_CONNECTIONSTRING']
-CONNECTION_STR = {pair.split('=')[0]:pair.split('=')[1] for pair in CONNECTION.split(' ')}
+CONNECTION = os.environ["AZURE_POSTGRESQL_CONNECTIONSTRING"]
+CONNECTION_STR = {
+    pair.split("=")[0]: pair.split("=")[1] for pair in CONNECTION.split(" ")
+}
 
 SECURE_SSL_REDIRECT = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": CONNECTION_STR['dbname'],
-        "HOST": CONNECTION_STR['host'],
-        "USER": CONNECTION_STR['user'],
-        "PASSWORD": CONNECTION_STR['password'],
-        "OPTIONS": {"sslmode":"require"},
+        "NAME": CONNECTION_STR["dbname"],
+        "HOST": CONNECTION_STR["host"],
+        "USER": CONNECTION_STR["user"],
+        "PASSWORD": CONNECTION_STR["password"],
+        "OPTIONS": {"sslmode": "require"},
     }
 }
 
-STATIC_ROOT = BASE_DIR/'staticfiles'
+STATIC_ROOT = BASE_DIR / "staticfiles"
