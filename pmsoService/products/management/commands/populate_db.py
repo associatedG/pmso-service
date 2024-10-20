@@ -79,7 +79,7 @@ class Command(BaseCommand):
                 name=f"Customer {i}",
                 phone=self.generate_phone_number(),
                 tier=random.choice([choice[0] for choice in get_all_tier_choices()]),
-                fax=random.randint(1000000000, 9999999999),
+                fax=random.randint(100000, 9999999),
                 email=f"customer{i}@example.com",
                 address={
                     "home_address": f"{random.randint(1, 100)} Main St",
