@@ -4,12 +4,7 @@ from django.db.models import Q
 from .models import Product, ProductOrder
 from notifications.models import Notification
 from account.models import User
-import os
 
-try:
-    BASE_URL = 'https://'+os.environ['WEBSITE_HOSTNAME']
-except KeyError:
-    BASE_URL = 'http://localhost:3000'
 
 def format_changes(changes):
     if not changes:
@@ -23,6 +18,7 @@ def format_changes(changes):
         formatted_changes.append(f"{field_name}: '{old_value}' → '{new_value}'")
     return formatted_changes
 
+
 @receiver(post_save, sender=Product)
 def product_saved(sender, instance, created, **kwargs):
     action = "created" if created else "updated"
@@ -33,26 +29,30 @@ def product_saved(sender, instance, created, **kwargs):
         actor = None
     create_notifications_for_product(instance, action, actor, changes)
 
+
 def create_notifications_for_product(product, action, actor=None, changes=None):
     admin_users = User.objects.filter(Q(is_staff=True) | Q(is_superuser=True))
     formatted_changes = format_changes(changes)
 
-    changes_message = f"\nThese are the changes: {', '.join(formatted_changes)}." if changes else ""
-    
+    changes_message = (
+        f"\nThese are the changes: {', '.join(formatted_changes)}." if changes else ""
+    )
+
     for user in admin_users:
         message = (
             f'Product "{product.name}" has been {action} by '
             f'"{actor if actor else "an unknown user"}"{changes_message}'
         )
         Notification.objects.create(
-            target_url=BASE_URL+'/products/'+str(product.id),
+            target_url="/products/" + str(product.id),
             target_name=product.name,
             message=message,
             user=user,
             action=action,
             actor=actor,
-            changes=formatted_changes
+            changes=formatted_changes,
         )
+
 
 @receiver(post_save, sender=ProductOrder)
 def product_order_saved(sender, instance, created, **kwargs):
@@ -63,6 +63,7 @@ def product_order_saved(sender, instance, created, **kwargs):
         changes = []
         actor = None
     create_notifications_for_product_order(instance, action, actor, changes)
+
 
 def create_notifications_for_product_order(order, action, actor=None, changes=None):
     users_to_notify = set()
@@ -77,7 +78,9 @@ def create_notifications_for_product_order(order, action, actor=None, changes=No
 
     formatted_changes = format_changes(changes)
 
-    changes_message = f"\nThese are the changes: {', '.join(formatted_changes)}." if changes else ""
+    changes_message = (
+        f"\nThese are the changes: {', '.join(formatted_changes)}." if changes else ""
+    )
 
     for user in users_to_notify:
         message = (
@@ -85,11 +88,11 @@ def create_notifications_for_product_order(order, action, actor=None, changes=No
             f'"{actor if actor else "an unknown user"}"{changes_message}'
         )
         Notification.objects.create(
-            target_url=BASE_URL+'/product-orders/'+str(order.id),
+            target_url="/product-orders/" + str(order.id),
             target_name=order.name,
             message=message,
             user=user,
             action=action,
             actor=actor,
-            changes = formatted_changes
+            changes=formatted_changes,
         )
